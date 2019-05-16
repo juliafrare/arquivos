@@ -47,54 +47,7 @@ void leArquivoBin(char *nomeArquivo){
 
 				//copia dos bytes da pagina de disco para a struct do registro de dados
 				if(pagina[offset] == '-'){
-					memcpy(&d.removido, &pagina[offset], 1);
-					offset += 1;
-					memcpy(&d.tamanhoRegistro, &pagina[offset], 4);
-					offset += 4;
-					memcpy(&d.encadeamentoLista, &pagina[offset], 8);
-					offset += 8;
-					memcpy(&d.idServidor, &pagina[offset], 4);
-					offset += 4;
-					memcpy(&d.salarioServidor, &pagina[offset], 8);
-					offset += 8;
-					memcpy(&d.telefoneServidor, &pagina[offset], 14);
-					offset += 14;
-
-					if(pagina[offset + 4] == 'n'){		//verifica se o campo nomeServidor existe verificando a presenca da tag 'n'
-						/*caso o campo existir, os dados sao copiados normalmente*/
-						memcpy(&d.tamNomeServidor, &pagina[offset], 4);
-						offset += 4;
-						memcpy(&d.tagCampo4, &pagina[offset], 1);
-						offset += 1;
-
-						d.nomeServidor = (char *) malloc(d.tamNomeServidor);
-						memcpy(d.nomeServidor, &pagina[offset], d.tamNomeServidor);
-						offset += d.tamNomeServidor - 1;
-					}
-					else{
-						/*caso o campo nao existir, o campo tamNomeServidor adquire valor nulo (-1), que sera utilizado
-						pela funcao printDados para verificar se um valor deve ser impresso ou nao*/
-						d.tamNomeServidor = -1;
-						d.nomeServidor = "";
-					}
-					
-					if(pagina[offset + 4] == 'c'){			//verifica se o campo cargoServidor existe verificando a presenca da tag 'c'
-							/*caso o campo existir, os dados sao copiados normalmente*/
-							memcpy(&d.tamCargoServidor, &pagina[offset], 4);
-							offset += 4;
-							memcpy(&d.tagCampo5, &pagina[offset], 1);
-							offset += 1;
-
-							d.cargoServidor = (char *) malloc(d.tamCargoServidor);
-							memcpy(d.cargoServidor, &pagina[offset], d.tamCargoServidor);
-							offset += d.tamCargoServidor - 1;
-					}
-					else{
-						/*caso o campo nao existir, o campo tamCargoServidor adquire valor nulo (-1), que sera utilizado
-						pela funcao printDados para verificar se um valor deve ser impresso ou nao*/
-						d.tamCargoServidor = -1;
-						d.cargoServidor = "";
-					}
+					d = copiaRegistro(pagina, &offset);
 
 					printDados2(d);		//imprime o registro de dados
 				}
