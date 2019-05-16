@@ -93,62 +93,72 @@ void buscaArquivoBin(char *nomeArquivo){
 			return;
 		}
 		
-		if(pagina[0] == '-'){
+		if(pagina[0] == '-' || pagina[0] == '*'){
 			while(offset < 32000){			//o ultimo byte da pagina esta no offset 32000 - 1 (ou seja, pagina[31999])
 				Dados d;
 
 				//copia dos bytes da pagina de disco para a struct do registro de dados
-				d = copiaRegistro(pagina, &offset);
+				if(pagina[offset] == '-'){
+					d = copiaRegistro(pagina, &offset);
 
-				//imprimir o registro de dados compativeis com a pesquisa
-				if(strcmp(nomeDoCampo, "idServidor") == 0){
-					if(atoi(valor) == d.idServidor){
-						achou = 1;
-						printDados3(c, d);
-						paginasAcessadas++;
-						printf("Número de páginas de disco acessadas: %d", paginasAcessadas);
-						return;							
+					//imprimir o registro de dados compativeis com a pesquisa
+					if(strcmp(nomeDoCampo, "idServidor") == 0){
+						if(atoi(valor) == d.idServidor){
+							achou = 1;
+							printDados3(c, d);
+							paginasAcessadas++;
+							printf("Número de páginas de disco acessadas: %d", paginasAcessadas);
+							return;							
+						}
+					}
+					else if(strcmp(nomeDoCampo, "salarioServidor") == 0){
+						if(atof(valor) == d.salarioServidor){
+							achou = 1;
+							printDados3(c, d);
+						}
+					}
+					else if(strcmp(nomeDoCampo, "telefoneServidor") == 0){
+						if(strcmp(valor, d.telefoneServidor) == 0){
+							achou = 1;
+							printDados3(c, d);
+						}
+					}
+					else if(strcmp(nomeDoCampo, "nomeServidor") == 0){
+						if(strcmp(valor, d.nomeServidor) == 0){
+							achou = 1;
+							printDados3(c, d);
+						}
+					}
+					else if(strcmp(nomeDoCampo, "cargoServidor") == 0){
+						if(strcmp(valor, d.cargoServidor) == 0){
+							achou = 1;
+							printDados3(c, d);
+						}
 					}
 				}
-				else if(strcmp(nomeDoCampo, "salarioServidor") == 0){
-					if(atof(valor) == d.salarioServidor){
-						achou = 1;
-						printDados3(c, d);
-					}
-				}
-				else if(strcmp(nomeDoCampo, "telefoneServidor") == 0){
-					if(strcmp(valor, d.telefoneServidor) == 0){
-						achou = 1;
-						printDados3(c, d);
-					}
-				}
-				else if(strcmp(nomeDoCampo, "nomeServidor") == 0){
-					if(strcmp(valor, d.nomeServidor) == 0){
-						achou = 1;
-						printDados3(c, d);
-					}
-				}
-				else if(strcmp(nomeDoCampo, "cargoServidor") == 0){
-					if(strcmp(valor, d.cargoServidor) == 0){
-						achou = 1;
-						printDados3(c, d);
-					}
+				else if(pagina[offset] == '*'){
+					int tamanho;
+					offset += 1;
+					memcpy(&tamanho, &pagina[offset], 4);
+					offset += tamanho + 4;
 				}
 					
 
-				if(pagina[offset] != '-'){
-					/*o char '-' marca o inicio de um registro de dados (uma vez que nao ha registros removidos).
-					assim, a nao existencia desse char logo apos o fim do registro anterior indica que nao existem
+				if(pagina[offset] != '-' && pagina[offset] != '*'){
+					/*os chars '-' e '*' marcam o inicio de um registro de dados.
+					assim, a nao existencia desses chars logo apos o fim do registro anterior indica que nao existem
 					mais registros, marcando assim o fim da pagina de disco.*/
 					paginasAcessadas++;
 					offset = 32000;
 				}
 
-				if(d.tamNomeServidor != -1)
-					free(d.nomeServidor);
+				if(pagina[offset] == '-'){
+					if(d.tamNomeServidor != -1)
+						free(d.nomeServidor);
 
-				if(d.tamCargoServidor != -1)
-					free(d.cargoServidor);
+					if(d.tamCargoServidor != -1)
+						free(d.cargoServidor);
+				}
 				
 			}
 			
