@@ -4,6 +4,7 @@
 #include "funcoes.h"
 #include "funcionalidade5.h"
 #include "escreverTela2.h"
+#include "lista.h"
 
 //obtem os dados para a funcionalidade 5
 Dados getDados2(){
@@ -24,7 +25,10 @@ Dados getDados2(){
 
 	d.idServidor = atoi(valorIdServidor);
 	//printf("1\n");
-	d.salarioServidor = atof(valorSalarioServidor);
+	if(strlen(valorSalarioServidor) == 0)
+		d.salarioServidor = -1;
+	else
+		d.salarioServidor = atof(valorSalarioServidor);
 	//printf("2\n");
 	strcpy(d.telefoneServidor, valorTelefoneServidor);
 	//printf("3\n");
