@@ -507,6 +507,7 @@ Dados copiaRegistro(char *pagina, int *offset){
 void inicializaLista(Lista *l){
 	l->ini = NULL;
 	l->fim = NULL;
+	l->tamanho = 0;
 }
 
 void insereLista(Lista *l, long int off){
@@ -525,6 +526,27 @@ void insereLista(Lista *l, long int off){
 	else
 		l->fim->prox = ptr;
 	l->fim = ptr;
+	l->tamanho++;
+}
+
+void insereListaTamanho(Lista *l, long int off, int size){
+	Node *ptr;
+	ptr = (Node *) malloc(sizeof(Node));
+
+	if(ptr == NULL)
+	return;
+
+	ptr->offset = off;
+	ptr->size = size;
+	ptr->prox = NULL;
+	
+	if(l->ini == NULL){
+		l->ini = ptr;
+	}
+	else
+		l->fim->prox = ptr;
+	l->fim = ptr;
+	l->tamanho++;
 }
 
 void getLista(FILE *fp, Lista *l){
@@ -546,6 +568,54 @@ void getLista(FILE *fp, Lista *l){
 
 	//printf("%ld %ld\n", l->ini->offset, l->fim->offset);
 	//printf("%d %d\n", l->ini->size, l->fim->size);
+
+	fseek(fp, 0, SEEK_SET);
+}
+
+void inicializaListaE(ListaE *l){
+	l->tamanho = 0;
+}
+
+void insereListaE(ListaE *l, long int off){
+	NodeE ptr;
+
+	ptr.offset = off;
+	
+	l->n[l->tamanho] = ptr;
+
+	l->tamanho++;
+}
+
+void insereListaTamanhoE(ListaE *l, long int off, int size){
+	NodeE ptr;
+
+	ptr.offset = off;
+	ptr.size = size;
+	
+	l->n[l->tamanho] = ptr;
+
+	l->tamanho++;
+}
+
+void getListaE(FILE *fp, ListaE *l){
+	int size;
+	long int off;
+
+	fseek(fp, 1, SEEK_SET);
+
+	fread(&off, 8, 1, fp);
+
+	while(off != -1){
+		insereListaE(l, off);
+		fseek(fp, off + 1, SEEK_SET);
+		fread(&size, 4, 1, fp);
+		fread(&off, 8, 1, fp);
+		l->n[l->tamanho - 1].size = size;
+		//printf("%ld %d\n", off, size);
+	}
+
+	//printf("%ld %ld\n", l->n[0].offset, l->n[l->tamanho - 1].offset);
+	//printf("%d %d\n", l->n[0].size, l->n[l->tamanho - 1].size);
 
 	fseek(fp, 0, SEEK_SET);
 }
