@@ -4,6 +4,7 @@
 #include "funcoes.h"
 #include "funcionalidade4.h"
 #include "escreverTela2.h"
+#include "lista.h"
 
 char* remocao(char* pagina, int *offset, int offsetAnterior, Dados d){
 	*offset = offsetAnterior;
@@ -16,6 +17,15 @@ char* remocao(char* pagina, int *offset, int offsetAnterior, Dados d){
 	}
 
 	return pagina;
+}
+
+int comparaTelefone(char *valor1, char *valor2, int tamanho){
+	for(int i = 0; i < tamanho; i++){
+		if(valor1[i] != valor2[i]){
+			return 1;
+		}
+	}
+	return 0;
 }
 
 //funcionalidade 4
@@ -33,12 +43,15 @@ void removeRegistro(char *nomeArquivo){
 
     char nomeCampoArray[numeroRemocoes][100], *valorCampoArray[numeroRemocoes];
 
+	//obtencao das entradas
 	for(int i = 0; i < numeroRemocoes; i++){
         char nomeCampo[100];
         char valorCampo[1000];
 
         scanf("%s", nomeCampo); // Vai salvar nomeDoCampo em str1
 		scan_quote_string(valorCampo); // Vai salvar MARIA DA SILVA em str2 (sem as aspas)
+		trim(nomeCampo);
+		trim(valorCampo);
 
 		strcpy(nomeCampoArray[i], nomeCampo);
 		valorCampoArray[i] = (char *) malloc(strlen(valorCampo) + 1);
@@ -70,6 +83,7 @@ void removeRegistro(char *nomeArquivo){
 
 	arquivoOffset = ftell(arquivoBin);
 
+	//obtencao da lista
 	inicializaLista(&l);
 	getLista(arquivoBin, &l);
 
@@ -78,23 +92,20 @@ void removeRegistro(char *nomeArquivo){
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb");
 
 	fwrite(paginaCab, 32000, 1, novoArquivoBin);
-	/*arquivoOffset = ftell(novoArquivoBin);
-	rewind(novoArquivoBin);
-	fwrite('0', 1, 1, novoArquivoBin);	//status 0
-	fseek(novoArquivoBin, arquivoOffset, SEEK_SET);*/
 	paginasAcessadas++;
 	
 	//printf("teste\n");
 
 	//busca pelos registros
-	/*while(!feof(arquivoBin)){		//bytesLidos = 0 indica o final do arquivo
-		int offset = 0;			//armazena o byte offset
+	while(!feof(arquivoBin)){		//bytesLidos = 0 indica o final do arquivo
+		int offset = 0, offsetLista;			//armazena o byte offset
 		char pagina[32000];
 
 		//pagina = (char *) malloc(sizeof(char) * 32000);
 
 		//obtencao da pagina de dados
 		bytesLidos = fread(pagina, 32000, 1, arquivoBin);
+		//printf("%d\n", bytesLidos);
 
 		//caso de erro #3: nao ha registros
 		if(bytesLidos == 0 && paginasAcessadas == 1){
@@ -129,101 +140,134 @@ void removeRegistro(char *nomeArquivo){
 
 					//verificar para todas as entradas
 					for(int i = 0; i < numeroRemocoes; i++){
-						if(strcmp(nomeCampoArray[i], "idServidor")){	//verifica a tag idServidor
+						//printf("nomeCampoArray[%d] == strcmp idServidor: %d\n", i, strcmp(nomeCampoArray[i], "idServidor"));
+						if(!strcmp(nomeCampoArray[i], "idServidor")){	//verifica a tag idServidor
 							if(atoi(valorCampoArray[i]) == d.idServidor){	//verifica o valor
 								offset = offsetAnterior;
-									pagina[offset] = '*';	//indicar que o registro foi removido
-									offset += 5;			//pular o indicador de tamanho, que sera mantido
-									offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
-									while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
-										pagina[offset] = '@';
-										offset++;
-									}
+								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
+								insereListaTamanho(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
+								pagina[offset] = '*';	//indica que o registro foi removido
+								offset += 5;			//pula o indicador de tamanho, que sera mantido
+								offset += 8;			//pula encadeamentoLista (sera modificado no final)
+								while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
+									pagina[offset] = '@';
+									offset++;
+								}
+								break;
 							}
-							break;
 						}
-						if(strcmp(nomeCampoArray[i], "salarioServidor")){	//verifica a tag salarioServidor
-							if(strcmp(valorCampoArray[i], "NULO") == 0){
+						else if(!strcmp(nomeCampoArray[i], "salarioServidor")){	//verifica a tag salarioServidor
+							//printf("entrou aqui 2\n");
+							if(strlen(valorCampoArray[i]) == 0){
 								if(d.salarioServidor == -1){
 									offset = offsetAnterior;
-									pagina[offset] = '*';	//indicar que o registro foi removido
-									offset += 5;			//pular o indicador de tamanho, que sera mantido
-									offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+									offsetLista = paginasAcessadas * 32000 + offsetAnterior;
+									insereListaTamanho(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
+									pagina[offset] = '*';	//indica que o registro foi removido
+									offset += 5;			//pula o indicador de tamanho, que sera mantido
+									offset += 8;			//pula encadeamentoLista (sera modificado no final)
 									while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
 										pagina[offset] = '@';
 										offset++;
 									}
+									break;
 								}
 							}
 							else if(atof(valorCampoArray[i]) == d.salarioServidor){	//verifica o valor
 								offset = offsetAnterior;
-								pagina[offset] = '*';	//indicar que o registro foi removido
-								offset += 5;			//pular o indicador de tamanho, que sera mantido
-								offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
+								insereListaTamanho(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
+								pagina[offset] = '*';	//indica que o registro foi removido
+								offset += 5;			//pula o indicador de tamanho, que sera mantido
+								offset += 8;			//pula encadeamentoLista (sera modificado no final)
 								while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
 									pagina[offset] = '@';
 									offset++;
 								}
+								break;
 							}
-							break;
 						}
-						if(strcmp(nomeCampoArray[i], "telefoneServidor")){	//verifica a tag telefoneServidor
-							if(strcmp(valorCampoArray[i], d.telefoneServidor)){	//verifica o valor
+						else if(!strcmp(nomeCampoArray[i], "telefoneServidor")){	//verifica a tag telefoneServidor
+							if(!comparaTelefone(valorCampoArray[i], d.telefoneServidor, 14)){	//verifica o valor
+								//printf("teste");
 								offset = offsetAnterior;
-								pagina[offset] = '*';	//indicar que o registro foi removido
-								offset += 5;			//pular o indicador de tamanho, que sera mantido
-								offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
+								insereListaTamanho(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
+								pagina[offset] = '*';	//indica que o registro foi removido
+								offset += 5;			//pula o indicador de tamanho, que sera mantido
+								offset += 8;			//pula encadeamentoLista (sera modificado no final)
 								while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
 									pagina[offset] = '@';
 									offset++;
 								}
+								break;
 							}
-							break;
 						}
-						if(strcmp(nomeCampoArray[i], "nomeServidor")){	//verifica a tag nomeServidor
-							if(strcmp(valorCampoArray[i], d.nomeServidor)){	//verifica o valor
+						else if(!strcmp(nomeCampoArray[i], "nomeServidor")){	//verifica a tag nomeServidor
+							//printf("entrou aqui 4\n");
+							if(!strcmp(valorCampoArray[i], d.nomeServidor)){	//verifica o valor
 								offset = offsetAnterior;
-								pagina[offset] = '*';	//indicar que o registro foi removido
-								offset += 5;			//pular o indicador de tamanho, que sera mantido
-								offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
+								insereListaTamanho(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
+								pagina[offset] = '*';	//indica que o registro foi removido
+								offset += 5;			//pula o indicador de tamanho, que sera mantido
+								offset += 8;			//pula encadeamentoLista (sera modificado no final)
 								while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
 									pagina[offset] = '@';
 									offset++;
 								}
+								break;
 							}
-							break;
 						}
-						if(strcmp(nomeCampoArray[i], "cargoServidor")){	//verifica a tag cargoServidor
-							if(strcmp(valorCampoArray[i], d.cargoServidor)){	//verifica o valor
+						else if(!strcmp(nomeCampoArray[i], "cargoServidor")){	//verifica a tag cargoServidor
+							//printf("entrou aqui 5\n");
+							if(!strcmp(valorCampoArray[i], d.cargoServidor)){	//verifica o valor
 								offset = offsetAnterior;
-								pagina[offset] = '*';	//indicar que o registro foi removido
-								offset += 5;			//pular o indicador de tamanho, que sera mantido
-								offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
+								insereListaTamanho(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
+								pagina[offset] = '*';	//indica que o registro foi removido
+								offset += 5;			//pula o indicador de tamanho, que sera mantido
+								offset += 8;			//pula encadeamentoLista (sera modificado no final)
 								while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
 									pagina[offset] = '@';
 									offset++;
 								}
+								break;
 							}
-							break;
 						}
 					}
 				}
 
-				if(pagina[offset] != '-' || pagina[offset] != '*'){
+				if(pagina[offset] != '-' && pagina[offset] != '*'){
 					//os chars '-' e '*' marcam o inicio de um registro de dados.
 					//assim, a nao existencia desses chars logo apos o fim do registro anterior indica que nao existem
 					//mais registros, marcando assim o fim da pagina de disco.
-					paginasAcessadas++;
-					offset = 32000;
-					fwrite(pagina, 32000, 1, novoArquivoBin);
+					if(!feof(arquivoBin)){
+						paginasAcessadas++;
+						offset = 32000;
+						fwrite(pagina, 32000, 1, novoArquivoBin);
+					}
+					else{
+						paginasAcessadas++;
+						fwrite(pagina, offset, 1, novoArquivoBin);
+						offset = 32000;
+					}
+					
 				}
 			}
 		}
-	}*/
+	}
+
+	//mergesort(l.n, 0, l.tamanho, 1);
+	//mergesort(l.n, 0, l.tamanho, 0);
+	//printLista(l);
+	getEncadLista(novoArquivoBin, l);
 
 	//rewind(novoArquivoBin);
 	//fwrite('1', 1, 1, novoArquivoBin);	//status 1
 
     fclose(arquivoBin);
 	fclose(novoArquivoBin);
+
+	binarioNaTela2("arquivo-novo.bin");
 }
