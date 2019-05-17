@@ -1,6 +1,3 @@
-#include <stdio.h>
-#define MAX_SIZE 10000
-
 //STRUCT DO REG. DE CABEÇALHO
 typedef struct cabecalho{
 	char status;	//1 byte, 0 quando abre, 1 quando fecha
@@ -39,27 +36,6 @@ typedef struct pagDisco{
 	int ocupado;		//indica quantos bytes da pagina estao ocupados
 }PagDisco;
 
-typedef struct node{
-	long int offset;
-	int size;
-	struct node *ant, *prox;
-}Node;
-
-typedef struct nodeE{
-	long int offset;
-	int size;
-}NodeE;
-
-typedef struct lista{
-	int tamanho;
-	Node *ini, *fim;
-}Lista;
-
-typedef struct listaE{
-	int tamanho;
-	NodeE n[MAX_SIZE];
-}ListaE;
-
 char *readLine();
 char *readLine2();
 char *readLine3();
@@ -73,9 +49,3 @@ void printDados3(Cabecalho c, Dados d);
 char* getPaginaCab(Cabecalho c);
 char* getPaginaDados(Dados d, char* pagina, int *offset, int *offsetTamRegistro);
 Dados copiaRegistro(char *pagina, int *offset);
-void inicializaLista(Lista *l);
-void insereListaTamanho(Lista *l, long int off, int size);
-void getLista(FILE *fp, Lista *l);
-void inicializaListaE(ListaE *l);
-void insereListaTamanhoE(ListaE *l, long int off, int size);
-void getListaE(FILE *fp, ListaE *l);
