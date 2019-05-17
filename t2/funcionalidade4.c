@@ -3,6 +3,20 @@
 #include <string.h>
 #include "funcoes.h"
 #include "funcionalidade4.h"
+#include "escreverTela2.h"
+
+char* remocao(char* pagina, int *offset, int offsetAnterior, Dados d){
+	*offset = offsetAnterior;
+	pagina[*offset] = '*';	//indicar que o registro foi removido
+	*offset += 5;			//pular o indicador de tamanho, que sera mantido
+	*offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+	while(*offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
+		pagina[*offset] = '@';
+		*offset++;
+	}
+
+	return pagina;
+}
 
 //funcionalidade 4
 void removeRegistro(char *nomeArquivo){
@@ -13,23 +27,24 @@ void removeRegistro(char *nomeArquivo){
     char paginaCab[32000];			//array da pagina de disco
     int bytesLidos, achou, paginasAcessadas = 0;	//bytesLidos sera o retorno do fread(bytes lidos com sucesso)
 	long int arquivoOffset;
+	Lista l;
 
     scanf("%d", &numeroRemocoes);
 
     char nomeCampoArray[numeroRemocoes][100], *valorCampoArray[numeroRemocoes];
 
-    for(int i = 0; i < numeroRemocoes; i++){
+	for(int i = 0; i < numeroRemocoes; i++){
         char nomeCampo[100];
-        char *valorCampo;
+        char valorCampo[1000];
 
-        scanf("%s ", nomeCampo);
-        valorCampo = readLine();
-        strcpy(nomeCampoArray[i], nomeCampo);
-        valorCampoArray[i] = (char *) malloc(sizeof(valorCampo));
-        strcpy(valorCampoArray[i], valorCampo);
+        scanf("%s", nomeCampo); // Vai salvar nomeDoCampo em str1
+		scan_quote_string(valorCampo); // Vai salvar MARIA DA SILVA em str2 (sem as aspas)
 
+		strcpy(nomeCampoArray[i], nomeCampo);
+		valorCampoArray[i] = (char *) malloc(strlen(valorCampo) + 1);
+		strcpy(valorCampoArray[i], valorCampo);
 
-        //printf("%s\n", nomeCampoArray[i]);
+		//printf("%s\n", nomeCampoArray[i]);
         //printf("%s\n", valorCampoArray[i]);
     }
 
@@ -53,6 +68,13 @@ void removeRegistro(char *nomeArquivo){
 		return;
 	}
 
+	arquivoOffset = ftell(arquivoBin);
+
+	inicializaLista(&l);
+	getLista(arquivoBin, &l);
+
+	fseek(arquivoBin, arquivoOffset, SEEK_CUR);
+
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb");
 
 	fwrite(paginaCab, 32000, 1, novoArquivoBin);
@@ -61,11 +83,15 @@ void removeRegistro(char *nomeArquivo){
 	fwrite('0', 1, 1, novoArquivoBin);	//status 0
 	fseek(novoArquivoBin, arquivoOffset, SEEK_SET);*/
 	paginasAcessadas++;
+	
+	//printf("teste\n");
 
 	//busca pelos registros
-	while(!feof(arquivoBin)){		//bytesLidos = 0 indica o final do arquivo
+	/*while(!feof(arquivoBin)){		//bytesLidos = 0 indica o final do arquivo
 		int offset = 0;			//armazena o byte offset
 		char pagina[32000];
+
+		//pagina = (char *) malloc(sizeof(char) * 32000);
 
 		//obtencao da pagina de dados
 		bytesLidos = fread(pagina, 32000, 1, arquivoBin);
@@ -77,10 +103,12 @@ void removeRegistro(char *nomeArquivo){
 			fclose(novoArquivoBin);
 			return;
 		}
+
 		
 		if(pagina[0] == '-' || pagina[0] == '*'){
 			int offsetAnterior = 0;			//byte offset do inicio do registro
 
+			
 			while(offset < 32000){			//o ultimo byte da pagina esta no offset 32000 - 1 (ou seja, pagina[31999])
 				//printf("%d\n", offset);
 
@@ -104,18 +132,30 @@ void removeRegistro(char *nomeArquivo){
 						if(strcmp(nomeCampoArray[i], "idServidor")){	//verifica a tag idServidor
 							if(atoi(valorCampoArray[i]) == d.idServidor){	//verifica o valor
 								offset = offsetAnterior;
-								pagina[offset] = '*';	//indicar que o registro foi removido
-								offset += 5;			//pular o indicador de tamanho, que sera mantido
-								offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
-								while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
-									pagina[offset] = '@';
-									offset++;
-								}
+									pagina[offset] = '*';	//indicar que o registro foi removido
+									offset += 5;			//pular o indicador de tamanho, que sera mantido
+									offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+									while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
+										pagina[offset] = '@';
+										offset++;
+									}
 							}
 							break;
 						}
 						if(strcmp(nomeCampoArray[i], "salarioServidor")){	//verifica a tag salarioServidor
-							if(atof(valorCampoArray[i]) == d.salarioServidor){	//verifica o valor
+							if(strcmp(valorCampoArray[i], "NULO") == 0){
+								if(d.salarioServidor == -1){
+									offset = offsetAnterior;
+									pagina[offset] = '*';	//indicar que o registro foi removido
+									offset += 5;			//pular o indicador de tamanho, que sera mantido
+									offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
+									while(offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
+										pagina[offset] = '@';
+										offset++;
+									}
+								}
+							}
+							else if(atof(valorCampoArray[i]) == d.salarioServidor){	//verifica o valor
 								offset = offsetAnterior;
 								pagina[offset] = '*';	//indicar que o registro foi removido
 								offset += 5;			//pular o indicador de tamanho, que sera mantido
@@ -170,22 +210,16 @@ void removeRegistro(char *nomeArquivo){
 				}
 
 				if(pagina[offset] != '-' || pagina[offset] != '*'){
-					/*os chars '-' e '*' marcam o inicio de um registro de dados.
-					assim, a nao existencia desses chars logo apos o fim do registro anterior indica que nao existem
-					mais registros, marcando assim o fim da pagina de disco.*/
+					//os chars '-' e '*' marcam o inicio de um registro de dados.
+					//assim, a nao existencia desses chars logo apos o fim do registro anterior indica que nao existem
+					//mais registros, marcando assim o fim da pagina de disco.
 					paginasAcessadas++;
 					offset = 32000;
 					fwrite(pagina, 32000, 1, novoArquivoBin);
 				}
 			}
 		}
-	}
-	
-
-	/*if(achou == 1)
-		printf("Número de páginas de disco acessadas: %d", paginasAcessadas);
-	else
-		printf("Registro inexistente.");*/
+	}*/
 
 	//rewind(novoArquivoBin);
 	//fwrite('1', 1, 1, novoArquivoBin);	//status 1

@@ -3,9 +3,10 @@
 #include <string.h>
 #include "funcoes.h"
 #include "funcionalidade6.h"
+#include "escreverTela2.h"
 
 //atualizacao de registros
-/*void atualiza(char **pagina, int *offset, int offsetAnterior, char nomeCampoAtualizaArray, char valorCampoAtualizaArray){
+char* atualiza(char *pagina, int *offset, int offsetAnterior, char *nomeCampoAtualizaArray, char *valorCampoAtualizaArray){
 	int tamanho;
 	*offset = offsetAnterior;
 
@@ -14,7 +15,7 @@
 
 		valor = atoi(valorCampoAtualizaArray);
 		*offset += 13;
-		memcpy(pagina[*offset], &valor, 4);
+		memcpy(&pagina[*offset], &valor, 4);
 
 		}
 	else if(strcmp(nomeCampoAtualizaArray, "salarioServidor")){	//verifica a tag salarioServidor
@@ -23,26 +24,26 @@
 		if(strcmp(valorCampoAtualizaArray, "NULO")){
 			valor = -1;
 			*offset += 17;
-			memcpy(pagina[*offset], &valor, 8);
+			memcpy(&pagina[*offset], &valor, 8);
 		}
 		else{
 			valor = atof(valorCampoAtualizaArray);
 			*offset += 17;
-			memcpy(pagina[*offset], &valor, 8);
+			memcpy(&pagina[*offset], &valor, 8);
 		}
 	}
 	else if(strcmp(nomeCampoAtualizaArray, "telefoneServidor")){	//verifica a tag telefoneServidor
 		if(strcmp(valorCampoAtualizaArray, "NULO")){
 			char valor[14] = {'@','@','@','@','@','@','@','@','@','@','@','@','@','@'};
 			*offset += 25;
-			memcpy(pagina[*offset], valor, 14);
+			memcpy(&pagina[*offset], valor, 14);
 		}
 		else{
 			*offset += 25;
-			memcpy(pagina[*offset], &valorCampoAtualizaArray, 14);
+			memcpy(&pagina[*offset], &valorCampoAtualizaArray, 14);
 		}
 	}
-	else if(strcmp(nomeCampoAtualizaArray, "nomeServidor")){	//verifica a tag nomeServidor
+	/*else if(strcmp(nomeCampoAtualizaArray, "nomeServidor")){	//verifica a tag nomeServidor
 		int tamanhoNome;
 		tamanhoNome = strlen(valorCampoAtualizaArray);
 		
@@ -53,14 +54,14 @@
 	}
 	else if(strcmp(nomeCampoAtualizaArray, "cargoServidor")){	//verifica a tag cargoServidor
 		
-	}
+	}*/
 
 	*offset = offsetAnterior;
 	*offset += 1;
-	memcpy(&tamanho, pagina[*offset], 4);
+	memcpy(&tamanho, &pagina[*offset], 4);
 	*offset += tamanho + 4;
 
-}*/
+}
 
 //funcionalidade 6
 void atualizaRegistro(char *nomeArquivo){
@@ -103,38 +104,43 @@ void atualizaRegistro(char *nomeArquivo){
 
 	scanf("%d", &numeroRemocoes);
 
-    char *nomeCampoBuscaArray[numeroRemocoes], *valorCampoBuscaArray[numeroRemocoes];
-	char *nomeCampoAtualizaArray[numeroRemocoes], *valorCampoAtualizaArray[numeroRemocoes];
+    char nomeCampoBuscaArray[numeroRemocoes][100], *valorCampoBuscaArray[numeroRemocoes];
+	char nomeCampoAtualizaArray[numeroRemocoes][100], *valorCampoAtualizaArray[numeroRemocoes];
 
 	//obtencao dos valores de entrada
     for(int i = 0; i < numeroRemocoes; i++){
-        char *nomeCampoBusca, *valorCampoBusca, *nomeCampoAtualiza, *valorCampoAtualiza;
+        char nomeCampoBusca[100], nomeCampoAtualiza[100];
+        char valorCampoBusca[1000], valorCampoAtualiza[1000];
 
-        scanf("%s ", nomeCampoBusca);
-        valorCampoBusca = readLine2();
-        scanf("%s ", nomeCampoAtualiza);
-        valorCampoAtualiza = readLine();
+        scanf("%s", nomeCampoBusca); // Vai salvar nomeDoCampo em str1
+		scan_quote_string(valorCampoBusca); // Vai salvar MARIA DA SILVA em str2 (sem as aspas)
+		scanf("%s", nomeCampoAtualiza); // Vai salvar nomeDoCampo em str1
+		scan_quote_string(valorCampoAtualiza);
 
-        nomeCampoBuscaArray[i] = (char *) malloc(sizeof(nomeCampoBusca));
-        strcpy(nomeCampoBuscaArray[i], nomeCampoBusca);
-        valorCampoBuscaArray[i] = (char *) malloc(sizeof(valorCampoBusca));
-        strcpy(valorCampoBuscaArray[i], valorCampoBusca);
-        nomeCampoAtualizaArray[i] = (char *) malloc(sizeof(nomeCampoAtualiza));
-        strcpy(nomeCampoAtualizaArray[i], nomeCampoAtualiza);
-        valorCampoAtualizaArray[i] = (char *) malloc(sizeof(valorCampoAtualiza));
-        strcpy(valorCampoAtualizaArray[i], valorCampoAtualiza);
 
-        printf("%s\n", nomeCampoBuscaArray[i]);
+		strcpy(nomeCampoBuscaArray[i], nomeCampoBusca);
+		valorCampoBuscaArray[i] = (char *) malloc(strlen(valorCampoBusca) + 1);
+		strcpy(valorCampoBuscaArray[i], valorCampoBusca);
+
+		strcpy(nomeCampoAtualizaArray[i], nomeCampoAtualiza);
+		valorCampoAtualizaArray[i] = (char *) malloc(strlen(valorCampoAtualiza) + 1);
+		strcpy(valorCampoAtualizaArray[i], valorCampoAtualiza);
+
+        /*printf("%s\n", nomeCampoBuscaArray[i]);
         printf("%s\n", valorCampoBuscaArray[i]);
         printf("%s\n", nomeCampoAtualizaArray[i]);
         printf("%s\n", valorCampoAtualizaArray[i]);
+		printf("%d\n", i);*/
 
     }
 
+/*
 	//busca pelos registros
-	/*while(!feof(arquivoBin)){
+	while(!feof(arquivoBin)){
 		int offset = 0;			//armazena o byte offset
-		char pagina[32000];
+		char *pagina;
+
+		pagina = (char *) malloc(sizeof(char) * 32000);
 
 		//obtencao da pagina de dados
 		bytesLidos = fread(pagina, 32000, 1, arquivoBin);
@@ -172,31 +178,31 @@ void atualizaRegistro(char *nomeArquivo){
 					for(int i = 0; i < numeroRemocoes; i++){
 						if(strcmp(nomeCampoBuscaArray[i], "idServidor")){	//verifica a tag idServidor
 							if(atoi(valorCampoBuscaArray[i]) == d.idServidor){	//verifica o valor
-								atualiza(&pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
+								pagina = atualiza(pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
 							}
 							break;
 						}
 						if(strcmp(nomeCampoBuscaArray[i], "salarioServidor")){	//verifica a tag salarioServidor
 							if(atof(valorCampoBuscaArray[i]) == d.salarioServidor){	//verifica o valor
-								atualiza(&pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
+								pagina = atualiza(pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
 							}
 							break;
 						}
 						if(strcmp(nomeCampoBuscaArray[i], "telefoneServidor")){	//verifica a tag telefoneServidor
 							if(strcmp(valorCampoBuscaArray[i], d.telefoneServidor)){	//verifica o valor
-								atualiza(&pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
+								pagina = atualiza(pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
 							}
 							break;
 						}
 						if(strcmp(nomeCampoBuscaArray[i], "nomeServidor")){	//verifica a tag nomeServidor
 							if(strcmp(valorCampoBuscaArray[i], d.nomeServidor)){	//verifica o valor
-								atualiza(&pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
+								pagina = atualiza(pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
 							}
 							break;
 						}
 						if(strcmp(nomeCampoBuscaArray[i], "cargoServidor")){	//verifica a tag cargoServidor
 							if(strcmp(valorCampoBuscaArray[i], d.cargoServidor)){	//verifica o valor
-								atualiza(&pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
+								pagina = atualiza(pagina, &offset, offsetAnterior, nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i]);
 							}
 							break;
 						}

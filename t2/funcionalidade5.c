@@ -3,51 +3,46 @@
 #include <string.h>
 #include "funcoes.h"
 #include "funcionalidade5.h"
+#include "escreverTela2.h"
 
 //obtem os dados para a funcionalidade 5
 Dados getDados2(){
 	Dados d;
-	int idServidor;
-	char *salarioServidor, telefoneServidor[15], *nomeServidor, *cargoServidor;
+	char valorIdServidor[20], valorSalarioServidor[20], valorTelefoneServidor[14], valorNomeServidor[500], valorCargoServidor[500];
 
-	scanf("%d ", &idServidor);
-	//printf("%d\n", idServidor);
-	salarioServidor = readLine3();
-	//printf("%s\n", salarioServidor);
-	//scanf("%s", telefoneServidor);
-	//telefoneServidor = readLine3();
-	scanf(" ");
-	fgets(telefoneServidor, 15, stdin);
-	//printf("%s\n", telefoneServidor);
-	scanf(" ");
-	nomeServidor = readLine2();
-	//printf("1\n");
-	//printf("%s\n", nomeServidor);
-	//printf("1\n");
-	cargoServidor = readLine();
-	//printf("%s\n", cargoServidor);
+	scan_quote_string(valorIdServidor); // Vai salvar MARIA DA SILVA em str2 (sem as aspas)
+	scan_quote_string(valorSalarioServidor);
+	scan_quote_string(valorTelefoneServidor);
+	scan_quote_string(valorNomeServidor);
+	scan_quote_string(valorCargoServidor);
 
-	d.idServidor = idServidor;
+	/*printf("%s\n", valorIdServidor);
+	printf("%s\n", valorSalarioServidor);
+	printf("%s\n", valorTelefoneServidor);
+	printf("%s\n", valorNomeServidor);
+	printf("%s\n", valorCargoServidor);*/
+
+	d.idServidor = atoi(valorIdServidor);
 	//printf("1\n");
-	if(strcmp(salarioServidor, "NULO"))
-		d.salarioServidor = atof(salarioServidor);
+	d.salarioServidor = atof(valorSalarioServidor);
 	//printf("2\n");
-	strcpy(d.telefoneServidor, telefoneServidor);
+	strcpy(d.telefoneServidor, valorTelefoneServidor);
 	//printf("3\n");
-	d.nomeServidor = (char *) malloc(sizeof(nomeServidor));
+	d.nomeServidor = (char *) malloc(sizeof(valorNomeServidor));
 	//printf("4\n");
-	strcpy(d.nomeServidor, nomeServidor);
+	strcpy(d.nomeServidor, valorNomeServidor);
 	//printf("5\n");
-	d.cargoServidor = (char *) malloc(sizeof(cargoServidor));
+	d.cargoServidor = (char *) malloc(sizeof(valorCargoServidor));
 	//printf("6\n");
-	strcpy(d.cargoServidor, cargoServidor);
+	strcpy(d.cargoServidor, valorCargoServidor);
 	//printf("7\n");
 
-	//printf("%d\n", d.idServidor);
-	//printf("%lf\n",d.salarioServidor);
-	//printf("%s\n", d.telefoneServidor);
-	//printf("%s\n", d.nomeServidor);
-	//printf("%s\n", d.cargoServidor);
+	/*printf("%d\n", d.idServidor);
+	printf("%lf\n",d.salarioServidor);
+	printf("%s\n", d.telefoneServidor);
+	printf("%s\n", d.nomeServidor);
+	printf("%s\n", d.cargoServidor);
+	printf("\n");*/
     
     return d;
 }
@@ -61,6 +56,7 @@ void insereRegistro(char *nomeArquivo){
     char paginaCab[32000];			//array da pagina de disco
     int bytesLidos, paginasAcessadas = 0;	//bytesLidos sera o retorno do fread(bytes lidos com sucesso)
 	long int arquivoOffset;
+	Lista l;
 
     arquivoBin = fopen(nomeArquivo, "rb");
 
@@ -83,6 +79,14 @@ void insereRegistro(char *nomeArquivo){
 		return;
 	}
 
+	arquivoOffset = ftell(arquivoBin);
+
+	//obtenção da lista ordenada
+	inicializaLista(&l);
+	getLista(arquivoBin, &l);
+
+	fseek(arquivoBin, arquivoOffset, SEEK_CUR);
+
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb");
 
 	fwrite(paginaCab, 32000, 1, novoArquivoBin);
@@ -95,8 +99,8 @@ void insereRegistro(char *nomeArquivo){
 
     Dados d[numRegistros];
 
-    for(int i = 0; i < numRegistros; i++){
-        d[i] = getDados2();
+	for(int i = 0; i < numRegistros; i++){
+        d[i] = getDados2();		
     }
 
 	//fseek(arquivoBin, 0, SEEK_END);
