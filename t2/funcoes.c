@@ -503,3 +503,49 @@ Dados copiaRegistro(char *pagina, int *offset){
 
     return d;
 }
+
+void inicializaLista(Lista *l){
+	l->ini = NULL;
+	l->fim = NULL;
+}
+
+void insereLista(Lista *l, long int off){
+	Node *ptr;
+	ptr = (Node *) malloc(sizeof(Node));
+
+	if(ptr == NULL)
+	return;
+
+	ptr->offset = off;
+	ptr->prox = NULL;
+	
+	if(l->ini == NULL){
+		l->ini = ptr;
+	}
+	else
+		l->fim->prox = ptr;
+	l->fim = ptr;
+}
+
+void getLista(FILE *fp, Lista *l){
+	int size;
+	long int off;
+
+	fseek(fp, 1, SEEK_SET);
+
+	fread(&off, 8, 1, fp);
+
+	while(off != -1){
+		insereLista(l, off);
+		fseek(fp, off + 1, SEEK_SET);
+		fread(&size, 4, 1, fp);
+		fread(&off, 8, 1, fp);
+		l->fim->size = size;
+		//printf("%ld %d\n", off, size);
+	}
+
+	//printf("%ld %ld\n", l->ini->offset, l->fim->offset);
+	//printf("%d %d\n", l->ini->size, l->fim->size);
+
+	fseek(fp, 0, SEEK_SET);
+}

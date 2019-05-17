@@ -38,6 +38,16 @@ typedef struct pagDisco{
 	int ocupado;		//indica quantos bytes da pagina estao ocupados
 }PagDisco;
 
+typedef struct node{
+	long int offset;
+	int size;
+	struct node *ant, *prox;
+}Node;
+
+typedef struct lista{
+	Node *ini, *fim;
+}Lista;
+
 char *readLine();
 char *readLine2();
 char *readLine3();
@@ -51,3 +61,5 @@ void printDados3(Cabecalho c, Dados d);
 char* getPaginaCab(Cabecalho c);
 char* getPaginaDados(Dados d, char* pagina, int *offset, int *offsetTamRegistro);
 Dados copiaRegistro(char *pagina, int *offset);
+void inicializaLista(Lista *l);
+void getLista(FILE *fp, Lista *l);
