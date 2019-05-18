@@ -503,3 +503,49 @@ Dados copiaRegistro(char *pagina, int *offset){
 
     return d;
 }
+
+//copia as paginas p/ arquivo novo
+void copiaArquivo(FILE *arquivoBin, FILE *novoArquivoBin, int paginasAcessadas){
+	int bytesLidos;
+
+	while(!feof(arquivoBin)){
+		int offset = 0;	//armazena o byte offset
+		char pagina[32000];
+
+		//obtencao da pagina de dados
+		bytesLidos = fread(pagina, 32000, 1, arquivoBin);
+
+		//caso de erro #3: nao ha registros
+		if(bytesLidos == 0 && paginasAcessadas == 1){
+			printf("Registro inexistente.");
+			fclose(arquivoBin);
+			fclose(novoArquivoBin);
+			return;
+		}
+
+		if(pagina[0] == '-' || pagina[0] == '*'){
+			while(offset < 32000){
+				int tamanho;
+				offset += 1;
+				memcpy(&tamanho, &pagina[offset], 4);
+				offset += tamanho + 4;	//atualiza o byte offset para o offset do proximo registro
+				if(pagina[offset] != '-' && pagina[offset] != '*'){
+					//os chars '-' e '*' marcam o inicio de um registro de dados.
+					//assim, a nao existencia desses chars logo apos o fim do registro anterior indica que nao existem
+					//mais registros, marcando assim o fim da pagina de disco.
+					if(!feof(arquivoBin)){
+						paginasAcessadas++;
+						offset = 32000;
+						fwrite(pagina, 32000, 1, novoArquivoBin);
+					}
+					else{
+						paginasAcessadas++;
+						fwrite(pagina, offset, 1, novoArquivoBin);
+						offset = 32000;
+					}
+					
+				}
+			}
+		}
+	}
+}

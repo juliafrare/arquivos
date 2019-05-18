@@ -43,3 +43,4 @@ void printDados3(Cabecalho c, Dados d);
 char* getPaginaCab(Cabecalho c);
 char* getPaginaDados(Dados d, char* pagina, int *offset, int *offsetTamRegistro);
 Dados copiaRegistro(char *pagina, int *offset);
+void copiaArquivo(FILE *arquivoBin, FILE *novoArquivoBin, int paginasAcessadas);
