@@ -8,6 +8,8 @@
 
 //obtem os dados para a funcionalidade 5
 Dados getDados2(Dados d){
+
+	//OBTENÇÃO DAS ENTRADAS
 	char valorIdServidor[20], valorSalarioServidor[20], valorTelefoneServidor[14], valorNomeServidor[500], valorCargoServidor[500];
 
 	scan_quote_string(valorIdServidor);
@@ -16,6 +18,7 @@ Dados getDados2(Dados d){
 	scan_quote_string(valorNomeServidor);
 	scan_quote_string(valorCargoServidor);
 
+	//COPIA DAS ENTRADAS PARA A STRUCT DO REG. DE DADOS
 	d.idServidor = atoi(valorIdServidor);
 
 	if(strlen(valorSalarioServidor) == 0)
@@ -91,13 +94,12 @@ void insereRegistro(char *nomeArquivo){
 		return;
 	}
 
-	arquivoOffset = ftell(arquivoBin);
-
 	//obtenção da lista ordenada
+	arquivoOffset = ftell(arquivoBin);
 	inicializaLista(&l);
 	getLista(arquivoBin, &l);
-
 	fseek(arquivoBin, arquivoOffset, SEEK_CUR);
+
 
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb");
 
@@ -113,94 +115,41 @@ void insereRegistro(char *nomeArquivo){
         d[i] = getDados2(d[i]);	
     }
 
-	while(!feof(arquivoBin)){
-		int offset = 0;	//armazena o byte offset
-		char pagina[32000];
+	//copia das paginas p/ arquivo novo
+	copiaArquivo(arquivoBin, novoArquivoBin, paginasAcessadas);
 
-		//obtencao da pagina de dados
-		bytesLidos = fread(pagina, 32000, 1, arquivoBin);
-
-		//caso de erro #3: nao ha registros
-		if(bytesLidos == 0 && paginasAcessadas == 1){
-			printf("Registro inexistente.");
-			fclose(arquivoBin);
-			fclose(novoArquivoBin);
-			return;
-		}
-
-		if(pagina[0] == '-' || pagina[0] == '*'){
-			while(offset < 32000){
-				int tamanho;
-				offset += 1;
-				memcpy(&tamanho, &pagina[offset], 4);
-				offset += tamanho + 4;	//atualiza o byte offset para o offset do proximo registro
-				if(pagina[offset] != '-' && pagina[offset] != '*'){
-					//os chars '-' e '*' marcam o inicio de um registro de dados.
-					//assim, a nao existencia desses chars logo apos o fim do registro anterior indica que nao existem
-					//mais registros, marcando assim o fim da pagina de disco.
-					if(!feof(arquivoBin)){
-						paginasAcessadas++;
-						offset = 32000;
-						fwrite(pagina, 32000, 1, novoArquivoBin);
-					}
-					else{
-						paginasAcessadas++;
-						fwrite(pagina, offset, 1, novoArquivoBin);
-						offset = 32000;
-					}
-					
-				}
-			}
-		}
-	}
-
+	//escrever os registros no arquivo
 	for(int i = 0; i < numRegistros; i++){
 		removeOffset = removeLista(&l, d[i].tamanhoRegistro);
-		//printf("%ld\n", removeOffset);
 
 		if(removeOffset != -1){
 			fseek(novoArquivoBin, removeOffset, SEEK_SET);
-
 			fwrite(&d[i].removido, 1, 1, novoArquivoBin);
-			//fwrite(&d[i].tamanhoRegistro, 4, 1, novoArquivoBin);
 			fseek(novoArquivoBin, 4, SEEK_CUR);
-			fwrite(&d[i].encadeamentoLista, 8, 1, novoArquivoBin);
-			fwrite(&d[i].idServidor, 4, 1, novoArquivoBin);
-			fwrite(&d[i].salarioServidor, 8, 1, novoArquivoBin);
-			fwrite(&d[i].telefoneServidor, 14, 1, novoArquivoBin);
-			if(d[i].tamNomeServidor > 0){
-				fwrite(&d[i].tamNomeServidor, 4, 1, novoArquivoBin);
-				fwrite(&d[i].tagCampo4, 1, 1, novoArquivoBin);
-				fwrite(d[i].nomeServidor, strlen(d[i].nomeServidor) + 1, 1, novoArquivoBin);
-			}
-			if(d[i].tamCargoServidor > 0){
-				fwrite(&d[i].tamCargoServidor, 4, 1, novoArquivoBin);
-				fwrite(&d[i].tagCampo5, 1, 1, novoArquivoBin);
-				fwrite(d[i].cargoServidor, strlen(d[i].cargoServidor) + 1, 1, novoArquivoBin);
-			}
-
-			getEncadLista(novoArquivoBin, l);
 		}
 		else{
 			fseek(novoArquivoBin, 0, SEEK_END);
-
 			fwrite(&d[i].removido, 1, 1, novoArquivoBin);
 			fwrite(&d[i].tamanhoRegistro, 4, 1, novoArquivoBin);
-			fwrite(&d[i].encadeamentoLista, 8, 1, novoArquivoBin);
-			fwrite(&d[i].idServidor, 4, 1, novoArquivoBin);
-			fwrite(&d[i].salarioServidor, 8, 1, novoArquivoBin);
-			fwrite(&d[i].telefoneServidor, 14, 1, novoArquivoBin);
-			if(d[i].tamNomeServidor > 0){
-				fwrite(&d[i].tamNomeServidor, 4, 1, novoArquivoBin);
-				fwrite(&d[i].tagCampo4, 1, 1, novoArquivoBin);
-				fwrite(d[i].nomeServidor, strlen(d[i].nomeServidor) + 1, 1, novoArquivoBin);
-			}
-			if(d[i].tamCargoServidor > 0){
-				fwrite(&d[i].tamCargoServidor, 4, 1, novoArquivoBin);
-				fwrite(&d[i].tagCampo5, 1, 1, novoArquivoBin);
-				fwrite(d[i].cargoServidor, strlen(d[i].cargoServidor) + 1, 1, novoArquivoBin);
-			}
 		}
+
+		fwrite(&d[i].encadeamentoLista, 8, 1, novoArquivoBin);
+		fwrite(&d[i].idServidor, 4, 1, novoArquivoBin);
+		fwrite(&d[i].salarioServidor, 8, 1, novoArquivoBin);
+		fwrite(&d[i].telefoneServidor, 14, 1, novoArquivoBin);
+		if(d[i].tamNomeServidor > 0){
+			fwrite(&d[i].tamNomeServidor, 4, 1, novoArquivoBin);
+			fwrite(&d[i].tagCampo4, 1, 1, novoArquivoBin);
+			fwrite(d[i].nomeServidor, strlen(d[i].nomeServidor) + 1, 1, novoArquivoBin);
+		}
+		if(d[i].tamCargoServidor > 0){
+			fwrite(&d[i].tamCargoServidor, 4, 1, novoArquivoBin);
+			fwrite(&d[i].tagCampo5, 1, 1, novoArquivoBin);
+			fwrite(d[i].cargoServidor, strlen(d[i].cargoServidor) + 1, 1, novoArquivoBin);
+		}
+
+		if(removeOffset != -1)
+			getEncadLista(novoArquivoBin, l);
 	}
 
 	char status = '1';
