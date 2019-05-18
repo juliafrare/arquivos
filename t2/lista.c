@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "lista.h"
 
+//funcao que inicializa a lista
 void inicializaLista(Lista *l){
 	Node *ptr;
 
@@ -16,6 +17,7 @@ void inicializaLista(Lista *l){
 	l->tamanho = 1;
 }
 
+//funcao que insere elementos na lista p/funcao getLista
 void insereLista(Lista *l, long int off){
 	Node *ptr;
 	ptr = (Node *) malloc(sizeof(Node));
@@ -31,6 +33,7 @@ void insereLista(Lista *l, long int off){
 	l->tamanho++;
 }
 
+//funcao que insere um elemento na lista
 void insereListaTamanho(Lista *l, long int off, int size){
 	Node *ptr, *aux;
 	ptr = (Node *) malloc(sizeof(Node));
@@ -64,6 +67,41 @@ void insereListaTamanho(Lista *l, long int off, int size){
 	l->tamanho++;
 }
 
+//funcao que insere um elemento na lista
+void insereListaTamanho2(Lista *l, long int off, int size){
+	Node *ptr, *aux;
+	ptr = (Node *) malloc(sizeof(Node));
+
+	if(ptr == NULL)
+	return;
+
+	ptr->offset = off;
+	ptr->size = size;
+	ptr->prox = NULL;
+	
+	
+	aux = l->ini;
+	while(aux != NULL){
+		if(aux->prox != NULL){
+			if(aux->prox->size > ptr->size){
+				ptr->prox = aux->prox;
+				aux->prox = ptr;
+				break;
+			}
+		}
+		else{
+			l->fim->prox = ptr;
+			l->fim = ptr;
+			break;
+		}
+		
+		aux = aux->prox;
+	}
+
+	l->tamanho++;
+}
+
+//funcao que remove um elemento da lista
 long int removeLista(Lista *l, int size){
 	Node *ptr;
 	long int off = -1;
@@ -90,6 +128,7 @@ long int removeLista(Lista *l, int size){
 	return off;	//registro sera adicionado no final
 }
 
+//funcao que obtem os elementos ja removidos
 void getLista(FILE *fp, Lista *l){
 	int size;
 	long int off;
@@ -113,6 +152,7 @@ void getLista(FILE *fp, Lista *l){
 	fseek(fp, 0, SEEK_SET);
 }
 
+//funcao que imprime a lista na tela
 void printLista(Lista l){
 	Node *ptr;
 
@@ -124,6 +164,7 @@ void printLista(Lista l){
 	}
 }
 
+//funcao que altera o topoLista e o encadeamentoLista de cada registro removido
 void getEncadLista(FILE *fp, Lista l){
 	Node *ptr;
 
