@@ -11,6 +11,7 @@ typedef struct lista{
 
 void inicializaLista(Lista *l);
 void insereListaTamanho(Lista *l, long int off, int size);
+long int removeLista(Lista *l, int size);
 void getLista(FILE *fp, Lista *l);
 void printLista(Lista l);
 void getEncadLista(FILE *fp, Lista l);

@@ -64,6 +64,32 @@ void insereListaTamanho(Lista *l, long int off, int size){
 	l->tamanho++;
 }
 
+long int removeLista(Lista *l, int size){
+	Node *ptr;
+	long int off = -1;
+	
+	ptr = l->ini;
+	while(ptr->prox != NULL){
+		if(size <= ptr->prox->size){
+			off = ptr->prox->offset;
+
+			if(ptr->prox == l->fim){
+				ptr->prox = NULL;
+				l->fim = ptr;
+			}
+			else
+				ptr->prox = ptr->prox->prox;
+
+			l->tamanho--;
+			return off;
+		}	
+		ptr = ptr->prox;
+	}
+
+	l->tamanho--;
+	return off;	//registro sera adicionado no final
+}
+
 void getLista(FILE *fp, Lista *l){
 	int size;
 	long int off;
@@ -104,7 +130,6 @@ void getEncadLista(FILE *fp, Lista l){
 	ptr = l.ini;
 	
 	while(ptr != NULL){
-		//printf("%d\n", i);
 		fseek(fp, 0, SEEK_SET);
 
 		if(ptr->prox == NULL){
