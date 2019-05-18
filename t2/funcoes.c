@@ -175,7 +175,7 @@ Dados inicializaRegDados(){
 
 	r.tamanhoRegistro = sizeof(r.encadeamentoLista) + sizeof(r.idServidor) + sizeof(r.salarioServidor) + sizeof(r.telefoneServidor) + sizeof(r.tamNomeServidor) + sizeof(r.tagCampo4) + sizeof(r.tamCargoServidor) + sizeof(r.tagCampo5);
 	r.removido = '-';				//registro sera sempre inicializado com "-"
-	r.encadeamentoLista = -1;		//encadeamentoLista sera sempre -1
+	r.encadeamentoLista = -1;		//encadeamentoLista sera sempre inicializado com -1
 	r.idServidor = -1;
 	r.salarioServidor = -1;
 	r.tamNomeServidor = -1;
