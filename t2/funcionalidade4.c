@@ -91,21 +91,17 @@ void removeRegistro(char *nomeArquivo){
 
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb");
 
+	paginaCab[0] = '0'; //status 0
 	fwrite(paginaCab, 32000, 1, novoArquivoBin);
 	paginasAcessadas++;
-	
-	//printf("teste\n");
 
 	//busca pelos registros
-	while(!feof(arquivoBin)){		//bytesLidos = 0 indica o final do arquivo
+	while(!feof(arquivoBin)){
 		int offset = 0, offsetLista;			//armazena o byte offset
 		char pagina[32000];
 
-		//pagina = (char *) malloc(sizeof(char) * 32000);
-
 		//obtencao da pagina de dados
 		bytesLidos = fread(pagina, 32000, 1, arquivoBin);
-		//printf("%d\n", bytesLidos);
 
 		//caso de erro #3: nao ha registros
 		if(bytesLidos == 0 && paginasAcessadas == 1){
@@ -121,7 +117,6 @@ void removeRegistro(char *nomeArquivo){
 
 			
 			while(offset < 32000){			//o ultimo byte da pagina esta no offset 32000 - 1 (ou seja, pagina[31999])
-				//printf("%d\n", offset);
 
 				//se o registro ja estiver removido, proceder para o proximo registro
 				if(pagina[offset] == '*'){
@@ -258,13 +253,12 @@ void removeRegistro(char *nomeArquivo){
 		}
 	}
 
-	//mergesort(l.n, 0, l.tamanho, 1);
-	//mergesort(l.n, 0, l.tamanho, 0);
 	//printLista(l);
 	getEncadLista(novoArquivoBin, l);
 
-	//rewind(novoArquivoBin);
-	//fwrite('1', 1, 1, novoArquivoBin);	//status 1
+	char status = '1';
+	rewind(novoArquivoBin);
+	fwrite(&status, 1, 1, novoArquivoBin);	//status 1
 
     fclose(arquivoBin);
 	fclose(novoArquivoBin);
