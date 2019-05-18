@@ -1,7 +1,7 @@
 //STRUCT DO REG. DE CABEÇALHO
 typedef struct cabecalho{
 	char status;	//1 byte, 0 quando abre, 1 quando fecha
-	long topoLista; //sempre igual a -1, 8 bytes
+	long topoLista; //igual a -1 quando nao ha removidos, 8 bytes
 	char tagCampo1;	//1 byte, "i"
 	char desCampo1[40]; //40 bytes, nao armazenar '\0'
 	char tagCampo2;	//1 byte, "s"
@@ -29,12 +29,6 @@ typedef struct regDados{
 	char tagCampo5;					//caso nulo nao armazenar
 	char *cargoServidor;			//tam variavel, armazenar '\0', lixo = @, aceita valores repetidos ou nulos (caso nulo nao armazenar)
 }Dados;
-
-//STRUCT DA PAGINA DE DISCO
-typedef struct pagDisco{
-	char p[32000];		//representa a pagina de disco em si
-	int ocupado;		//indica quantos bytes da pagina estao ocupados
-}PagDisco;
 
 char *readLine();
 char *readLine2();
