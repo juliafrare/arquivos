@@ -504,6 +504,36 @@ Dados copiaRegistro(char *pagina, int *offset){
     return d;
 }
 
+//funcao que copia um registro p/outro
+Dados copiaRegistro2(Dados d1){
+    Dados d2;
+
+    //copia dos bytes da pagina de disco para a struct do registro de dados
+    d2.removido = d1.removido;
+    d2.tamanhoRegistro = d1.tamanhoRegistro;
+    d2.encadeamentoLista = d1.encadeamentoLista;
+    d2.idServidor = d1.idServidor;
+    d2.salarioServidor = d1.salarioServidor;
+	for(int i = 0; i < 14; i++)
+    	d2.telefoneServidor[i] = d1.telefoneServidor[i];
+	d2.tamNomeServidor = d1.tamNomeServidor;
+	if(d1.tamNomeServidor > 0){
+		d2.tagCampo4 = d1.tagCampo4;
+		d2.nomeServidor = (char *) malloc(strlen(d1.nomeServidor) + 1);
+		strcpy(d2.nomeServidor, d1.nomeServidor);
+		//free(d1.nomeServidor);
+	}
+	d2.tamCargoServidor = d1.tamCargoServidor;
+	if(d1.tamCargoServidor > 0){
+		d2.tagCampo5 = d1.tagCampo5;
+		d2.cargoServidor = (char *) malloc(strlen(d1.cargoServidor) + 1);
+		strcpy(d2.cargoServidor, d1.cargoServidor);
+		//free(d1.cargoServidor);
+	}
+
+    return d2;
+}
+
 //copia as paginas p/ arquivo novo
 void copiaArquivo(FILE *arquivoBin, FILE *novoArquivoBin, int paginasAcessadas){
 	int bytesLidos;
