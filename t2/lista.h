@@ -7,7 +7,6 @@ typedef struct node{
 
 //STRUCT DA LISTA ENCADEADA
 typedef struct lista{
-	int tamanho;
 	Node *ini, *fim;
 }Lista;
 
