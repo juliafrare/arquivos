@@ -14,7 +14,6 @@ void inicializaLista(Lista *l){
 
 	l->ini = ptr;
 	l->fim = ptr;
-	l->tamanho = 1;
 }
 
 //funcao que insere elementos na lista p/funcao getLista
@@ -30,7 +29,6 @@ void insereLista(Lista *l, long int off){
 	
 	l->fim->prox = ptr;
 	l->fim = ptr;
-	l->tamanho++;
 }
 
 //funcao que insere um elemento na lista
@@ -63,8 +61,6 @@ void insereListaTamanho(Lista *l, long int off, int size){
 		
 		aux = aux->prox;
 	}
-
-	l->tamanho++;
 }
 
 //funcao que insere um elemento na lista
@@ -97,34 +93,34 @@ void insereListaTamanho2(Lista *l, long int off, int size){
 		
 		aux = aux->prox;
 	}
-
-	l->tamanho++;
 }
 
 //funcao que remove um elemento da lista
 long int removeLista(Lista *l, int size){
-	Node *ptr;
+	Node *ptr, *aux;
 	long int off = -1;
 	
 	ptr = l->ini;
-	while(ptr->prox != NULL){
-		if(size <= ptr->prox->size){
-			off = ptr->prox->offset;
+	aux = NULL;
+	while(ptr != NULL){
+		if(size <= ptr->size){
+			off = ptr->offset;
 
-			if(ptr->prox == l->fim){
-				ptr->prox = NULL;
-				l->fim = ptr;
+			if(ptr == l->ini)
+				l->ini = l->ini->prox;
+			else{
+				aux->prox = ptr->prox;
+
+				if(ptr == l->fim)
+					l->fim = aux;
 			}
-			else
-				ptr->prox = ptr->prox->prox;
-
-			l->tamanho--;
-			return off;
-		}	
+			free(ptr);
+			return off;	//registro sera adicionado no lugar de um registro removido
+		}
+		aux = ptr;
 		ptr = ptr->prox;
 	}
 
-	l->tamanho--;
 	return off;	//registro sera adicionado no final
 }
 
