@@ -31,8 +31,6 @@ typedef struct regDados{
 }Dados;
 
 char *readLine();
-char *readLine2();
-char *readLine3();
 Cabecalho inicializaCab();
 Cabecalho getCabecalho(FILE *arquivoLido, Cabecalho c);
 Cabecalho ajustaCabecalho(Cabecalho c);

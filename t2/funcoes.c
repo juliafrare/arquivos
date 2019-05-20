@@ -34,62 +34,6 @@ char *readLine(){
 	return str;
 }
 
-//funcao para ler uma string ate fechar aspas, utilizada para ler a penultima entrada (valor) da funcionalidade 5
-char *readLine2(){
-	char *str;
-	int i = 0, flag = 0;
-	
-	str = (char *)malloc(sizeof(char));
-	
-	while(flag == 0){
-		if(i == 0){
-			scanf("%c", &str[i]);
-			i++;
-			str = (char *)realloc(str, sizeof(char) * i+1);
-		}
-		else if(i > 0){
-			scanf("%c", &str[i]);
-			i++;
-			str = (char *)realloc(str, sizeof(char) * i+1);
-		}
-		if(str[i-1] == ' '){
-            if(str[i-2] == '\"'){
-                flag = 1;
-			    str[i-1] = '\0';
-            }
-		}
-	}
-	
-	return str;
-}
-
-//funcao para ler uma string ate um espacos, utilizada para ler entradas da funcionalidade 5
-char *readLine3(){
-	char *str;
-	int i = 0, flag = 0;
-	
-	str = (char *)malloc(sizeof(char));
-	
-	while(flag == 0){
-		if(i == 0){
-			scanf("%c", &str[i]);
-			i++;
-			str = (char *)realloc(str, sizeof(char) * i+1);
-		}
-		else if(i > 0){
-			scanf("%c", &str[i]);
-			i++;
-			str = (char *)realloc(str, sizeof(char) * i+1);
-		}
-		if(str[i-1] == ' '){
-            flag = 1;
-			str[i-1] = '\0';
-		}
-	}
-	
-	return str;
-}
-
 //funcao que inicializa o registro de cabecalho
 Cabecalho inicializaCab(){		
 	Cabecalho c;
@@ -521,14 +465,12 @@ Dados copiaRegistro2(Dados d1){
 		d2.tagCampo4 = d1.tagCampo4;
 		d2.nomeServidor = (char *) malloc(strlen(d1.nomeServidor) + 1);
 		strcpy(d2.nomeServidor, d1.nomeServidor);
-		//free(d1.nomeServidor);
 	}
 	d2.tamCargoServidor = d1.tamCargoServidor;
 	if(d1.tamCargoServidor > 0){
 		d2.tagCampo5 = d1.tagCampo5;
 		d2.cargoServidor = (char *) malloc(strlen(d1.cargoServidor) + 1);
 		strcpy(d2.cargoServidor, d1.cargoServidor);
-		//free(d1.cargoServidor);
 	}
 
     return d2;
