@@ -6,69 +6,22 @@
 #include "escreverTela2.h"
 #include "lista.h"
 
-//funcao que remove os registros
-char* remocao(char* pagina, int *offset, int offsetAnterior, Dados d){
-	*offset = offsetAnterior;
-	pagina[*offset] = '*';	//indicar que o registro foi removido
-	*offset += 5;			//pular o indicador de tamanho, que sera mantido
-	*offset += 8;			//pular encadeamentoLista enquanto nao sei o que fazer com ele
-	while(*offset < (offsetAnterior + 5 + d.tamanhoRegistro)){
-		pagina[*offset] = '@';
-		*offset++;
-	}
-
-	return pagina;
-}
-
-//funcao que compara dois valores de telefoneServidor
-int comparaTelefone(char *valor1, char *valor2, int tamanho){
-	for(int i = 0; i < tamanho; i++){
-		if(valor1[i] != valor2[i]){
-			return 1;
-		}
-	}
-	return 0;
-}
-
 //funcionalidade 4
 void removeRegistro(char *nomeArquivo){
     FILE* arquivoBin;			//ponteiro para o arquivo .bin
 	FILE* novoArquivoBin;
     int numeroRemocoes;
-    //////////////////////////////////////////
     char paginaCab[32000];			//array da pagina de disco
     int bytesLidos, achou, paginasAcessadas = 0;	//bytesLidos sera o retorno do fread(bytes lidos com sucesso)
 	long int arquivoOffset;
 	Lista l;
 
-    scanf("%d", &numeroRemocoes);
-
-    char nomeCampoArray[numeroRemocoes][100], *valorCampoArray[numeroRemocoes];
-
-	//obtencao das entradas
-	for(int i = 0; i < numeroRemocoes; i++){
-        char nomeCampo[100];
-        char valorCampo[1000];
-
-        scanf("%s", nomeCampo); // Vai salvar nomeDoCampo em str1
-		scan_quote_string(valorCampo); // Vai salvar MARIA DA SILVA em str2 (sem as aspas)
-		trim(nomeCampo);
-		trim(valorCampo);
-
-		strcpy(nomeCampoArray[i], nomeCampo);
-		valorCampoArray[i] = (char *) malloc(strlen(valorCampo) + 1);
-		strcpy(valorCampoArray[i], valorCampo);
-
-		//printf("%s\n", nomeCampoArray[i]);
-        //printf("%s\n", valorCampoArray[i]);
-    }
-
+	//abertura do arquivo original
     arquivoBin = fopen(nomeArquivo, "rb");
 
     //caso de erro #1: nao existe um arquivo com o nome indicado pelo usuario
 	if(arquivoBin == NULL){
 		printf("Falha no processamento do arquivo.");
-        //free(valorCampo);
 		return;
 	}
 
@@ -79,20 +32,38 @@ void removeRegistro(char *nomeArquivo){
     if(paginaCab[0] == '0'){
 		printf("Falha no processamento do arquivo.");
 		fclose(arquivoBin);
-        //free(valorCampo);
 		return;
 	}
 
-	arquivoOffset = ftell(arquivoBin);
+	//obtencao das entradas
+    scanf("%d", &numeroRemocoes);
 
-	//obtencao da lista
+    char nomeCampoArray[numeroRemocoes][100], *valorCampoArray[numeroRemocoes];
+
+	for(int i = 0; i < numeroRemocoes; i++){
+        char nomeCampo[100];
+        char valorCampo[1000];
+
+        scanf("%s", nomeCampo);
+		scan_quote_string(valorCampo);
+		trim(nomeCampo);
+		trim(valorCampo);
+
+		strcpy(nomeCampoArray[i], nomeCampo);
+		valorCampoArray[i] = (char *) malloc(strlen(valorCampo) + 1);
+		strcpy(valorCampoArray[i], valorCampo);
+    }
+
+	//obtenção da lista
+	arquivoOffset = ftell(arquivoBin);
 	inicializaLista(&l);
 	getLista(arquivoBin, &l);
-
 	fseek(arquivoBin, arquivoOffset, SEEK_CUR);
 
+	//abertura do arquivo novo para escrita
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb");
 
+	//atualização do status
 	paginaCab[0] = '0'; //status 0
 	fwrite(paginaCab, 32000, 1, novoArquivoBin);
 	paginasAcessadas++;
@@ -153,7 +124,6 @@ void removeRegistro(char *nomeArquivo){
 							}
 						}
 						else if(!strcmp(nomeCampoArray[i], "salarioServidor")){	//verifica a tag salarioServidor
-							//printf("entrou aqui 2\n");
 							if(strlen(valorCampoArray[i]) == 0){
 								if(d.salarioServidor == -1){
 									offset = offsetAnterior;
@@ -199,7 +169,6 @@ void removeRegistro(char *nomeArquivo){
 							}
 						}
 						else if(!strcmp(nomeCampoArray[i], "nomeServidor")){	//verifica a tag nomeServidor
-							//printf("entrou aqui 4\n");
 							if(!strcmp(valorCampoArray[i], d.nomeServidor)){	//verifica o valor
 								offset = offsetAnterior;
 								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
@@ -215,7 +184,6 @@ void removeRegistro(char *nomeArquivo){
 							}
 						}
 						else if(!strcmp(nomeCampoArray[i], "cargoServidor")){	//verifica a tag cargoServidor
-							//printf("entrou aqui 5\n");
 							if(!strcmp(valorCampoArray[i], d.cargoServidor)){	//verifica o valor
 								offset = offsetAnterior;
 								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
@@ -259,25 +227,25 @@ void removeRegistro(char *nomeArquivo){
 		}
 	}
 
-	//printLista(l);
+	//atualização do encadeamento
 	getEncadLista(novoArquivoBin, l);
 
+	//atualização do status
 	char status = '1';
 	rewind(novoArquivoBin);
 	fwrite(&status, 1, 1, novoArquivoBin);	//status 1
 
+	//fechando os arquivos
     fclose(arquivoBin);
 	fclose(novoArquivoBin);
 
-	//desaloca(&l);
-
+	//escrita do arquivo bin na tela
 	binarioNaTela2("arquivo-novo.bin");
 
+	//desalocação da heap
 	for(int i = 0; i < numeroRemocoes; i++){
 		free(valorCampoArray[i]);
 	}
-
 	desaloca(&l);
-
 
 }

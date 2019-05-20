@@ -6,6 +6,7 @@
 #include "escreverTela2.h"
 #include "lista.h"
 
+//função que escreve os registros no arquivo
 void escreveRegistro2(FILE *fp, Lista *l, Dados d){
 	int removeOffset;
 
@@ -41,11 +42,9 @@ void escreveRegistro2(FILE *fp, Lista *l, Dados d){
 		getEncadLista(fp, *l);
 }
 
-//atualizacao de registros
+//função que realiza a atualização de registros
 char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *valorCampoAtualizaArray, Lista *l, Dados d){
 	int tamanhoReg; //tamanho do registro
-
-	//printf("%ld\n", offset);
 
 	fseek(fp, offset, SEEK_SET);	//pula p/offset do registro
 	fseek(fp, 1, SEEK_CUR);	//pula removido
@@ -166,16 +165,14 @@ char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *va
 		}
 	}
 	else if(!strcmp(nomeCampoAtualizaArray, "cargoServidor")){	//verifica a tag cargoServidor
-		//printf("atualiza cargo\n");
 		int tamanhoCargo;
-		//char tag;
 		char lixo = '@';
 		tamanhoCargo = strlen(valorCampoAtualizaArray) + 2;
 
 		fseek(fp, 4, SEEK_CUR);	//pula idServidor
 		fseek(fp, 8, SEEK_CUR);	//pula salarioServidor
 		fseek(fp, 14, SEEK_CUR);	//pula telefoneServidor
-		//pula nomeServidor
+
 		if(d.tamNomeServidor > 0){
 			fseek(fp, 4, SEEK_CUR);	//pula tamNomeServidor
 			fseek(fp, 1, SEEK_CUR);	//pula tagCampo4
@@ -252,12 +249,12 @@ void atualizaRegistro(char *nomeArquivo){
     FILE* arquivoBin;			//ponteiro para o arquivo .bin
 	FILE* novoArquivoBin;
     int numeroAtualiza;
-    //////////////////////////////////////////
     char paginaCab[32000];			//array da pagina de cabecalho
     int bytesLidos, paginasAcessadas = 0;	//bytesLidos sera o retorno do fread(bytes lidos com sucesso)
 	long int arquivoOffset;
 	Lista l;
 
+	//abertura do arquivo original
     arquivoBin = fopen(nomeArquivo, "rb");
 
     //caso de erro #1: nao existe um arquivo com o nome indicado pelo usuario
@@ -283,15 +280,16 @@ void atualizaRegistro(char *nomeArquivo){
 	getLista(arquivoBin, &l);
 	fseek(arquivoBin, arquivoOffset, SEEK_CUR);
 
-	//abrindo o arquivo novo
+	//abrindo o arquivo novo para escrita
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb+");
 
+	//atualização do status
 	paginaCab[0] = '0'; //status 0
 	fwrite(paginaCab, 32000, 1, novoArquivoBin);
 
+	//obtencao dos valores de entrada
 	scanf("%d", &numeroAtualiza);
 
-	//obtencao dos valores de entrada
 	long int offsetRegistros[numeroAtualiza];	//armazena o byte offset dos registros
 	Dados registros[numeroAtualiza];	//armazena os registros (caso eles tenham q ser removidos)
     char nomeCampoBuscaArray[numeroAtualiza][100], *valorCampoBuscaArray[numeroAtualiza];
@@ -321,12 +319,6 @@ void atualizaRegistro(char *nomeArquivo){
 		valorCampoAtualizaArray[i] = (char *) malloc(strlen(valorCampoAtualiza) + 1);
 		strcpy(valorCampoAtualizaArray[i], valorCampoAtualiza);
 
-        /*printf("%s\n", nomeCampoBuscaArray[i]);
-        printf("%s\n", valorCampoBuscaArray[i]);
-        printf("%s\n", nomeCampoAtualizaArray[i]);
-        printf("%s\n", valorCampoAtualizaArray[i]);
-		printf("%d\n", i);*/
-
     }
 
 	//copia das paginas p/ arquivo novo
@@ -339,8 +331,6 @@ void atualizaRegistro(char *nomeArquivo){
 		int offset = 0;	//armazena o byte offset
 		char pagina[32000];
 
-		//printf("%ld\n", ftell(arquivoBin));
-
 		//obtencao da pagina de dados
 		fread(pagina, 32000, 1, arquivoBin);
 		
@@ -349,7 +339,6 @@ void atualizaRegistro(char *nomeArquivo){
 			int achou = 0;
 
 			while(offset < 32000){			//o ultimo byte da pagina esta no offset 32000 - 1 (ou seja, pagina[31999])
-				//printf("%d\n", offset);
 
 				//se o registro ja estiver removido, proceder para o proximo registro
 				if(pagina[offset] == '*'){
@@ -367,7 +356,6 @@ void atualizaRegistro(char *nomeArquivo){
 					
 					//copia dos bytes da pagina de disco para a struct do registro de dados
 					d = copiaRegistro(pagina, &offset);
-					//printf("%c\n", pagina[offset]);
 
 					//verificar para todas as entradas
 					for(int i = 0; i < numeroAtualiza; i++){
@@ -375,7 +363,6 @@ void atualizaRegistro(char *nomeArquivo){
 							if(atoi(valorCampoBuscaArray[i]) == d.idServidor){	//verifica o valor
 								achou = 1;
 								registros[i] = copiaRegistro2(d);
-								//registros[i] = d;
 								offsetRegistros[i] = paginasAcessadas * 32000 + offsetAnterior;
 							}
 						}
@@ -383,7 +370,6 @@ void atualizaRegistro(char *nomeArquivo){
 							if(atof(valorCampoBuscaArray[i]) == d.salarioServidor){	//verifica o valor
 								achou = 1;
 								registros[i] = copiaRegistro2(d);
-								//registros[i] = d;
 								offsetRegistros[i] = paginasAcessadas * 32000 + offsetAnterior;
 							}
 						}
@@ -391,19 +377,13 @@ void atualizaRegistro(char *nomeArquivo){
 							if(!strcmp(valorCampoBuscaArray[i], d.telefoneServidor)){	//verifica o valor
 								achou = 1;
 								registros[i] = copiaRegistro2(d);
-								//registros[i] = d;
 								offsetRegistros[i] = paginasAcessadas * 32000 + offsetAnterior;
 							}
 						}
 						else if(!strcmp(nomeCampoBuscaArray[i], "nomeServidor")){	//verifica a tag nomeServidor
-							//printf("busca nome\n");
-							//printf("%s ", valorCampoBuscaArray[i]);
-							//printf("%s\n", d.nomeServidor);
 							if(!strcmp(valorCampoBuscaArray[i], d.nomeServidor)){	//verifica o valor
-								//printf("busca nome2\n");
 								achou = 1;
 								registros[i] = copiaRegistro2(d);
-								//registros[i] = d;
 								offsetRegistros[i] = paginasAcessadas * 32000 + offsetAnterior;
 							}
 						}
@@ -411,22 +391,15 @@ void atualizaRegistro(char *nomeArquivo){
 							if(!strcmp(valorCampoBuscaArray[i], d.cargoServidor)){	//verifica o valor
 								achou = 1;
 								registros[i] = copiaRegistro2(d);
-								//registros[i] = d;
 								offsetRegistros[i] = paginasAcessadas * 32000 + offsetAnterior;
 							}
 						}
 					}
 
-					/*if(achou != 1){
-						if(d.tamNomeServidor != -1)
-							free(d.nomeServidor);
-						if(d.tamCargoServidor != -1)
-							free(d.cargoServidor);
-					}*/
-					/*if(d.tamNomeServidor > 0)
+					if(d.tamNomeServidor > 0)
 						free(d.nomeServidor);
 					if(d.tamCargoServidor > 0)
-						free(d.cargoServidor);*/
+						free(d.cargoServidor);
 				}
 
 				if(pagina[offset] != '-' && pagina[offset] != '*'){
@@ -443,20 +416,23 @@ void atualizaRegistro(char *nomeArquivo){
 	//realizar alteracoes
 	for(int i = 0; i < numeroAtualiza; i++)
 		atualiza(novoArquivoBin, offsetRegistros[i], nomeCampoAtualizaArray[i], valorCampoAtualizaArray[i], &l, registros[i]);
-	
+
+	//atualização do encadeamento
 	getEncadLista(novoArquivoBin, l);
 
-	desaloca(&l);
-
+	//atualização do status
 	char status = '1';
 	rewind(novoArquivoBin);
 	fwrite(&status, 1, 1, novoArquivoBin);	//status 1
 
+	//fechando os arquivos
 	fclose(novoArquivoBin);
     fclose(arquivoBin);
 
+	//escrita do arquivo bin na tela
 	binarioNaTela2("arquivo-novo.bin");
 
+	//desalocação da heap
 	for(int i = 0; i < numeroAtualiza; i++){
 		free(valorCampoBuscaArray[i]);
 		free(valorCampoAtualizaArray[i]);
@@ -465,4 +441,5 @@ void atualizaRegistro(char *nomeArquivo){
 		if(registros[i].tamCargoServidor != -1)
 			free(registros[i].cargoServidor);
 	}
+	desaloca(&l);
 }

@@ -8,12 +8,12 @@
 
 //funcao que escreve os registros no arquivo
 void escreveRegistro(FILE *fp, Lista *l, Dados d){
-	int removeOffset;
+	int novoOffset;	//armazena o offset novo do registro (ou seja, o offset de destino, para onde ele esta sendo movido)
 
-	removeOffset = removeLista(l, d.tamanhoRegistro);
+	novoOffset = removeLista(l, d.tamanhoRegistro);
 
-	if(removeOffset != -1){
-		fseek(fp, removeOffset, SEEK_SET);
+	if(novoOffset != -1){
+		fseek(fp, novoOffset, SEEK_SET);
 		fwrite(&d.removido, 1, 1, fp);
 		fseek(fp, 4, SEEK_CUR);
 	}
@@ -38,14 +38,14 @@ void escreveRegistro(FILE *fp, Lista *l, Dados d){
 		fwrite(d.cargoServidor, strlen(d.cargoServidor) + 1, 1, fp);
 	}
 
-	if(removeOffset != -1)
+	if(novoOffset != -1)
 		getEncadLista(fp, *l);
 }
 
 //obtem os dados para a funcionalidade 5
 Dados getDados2(Dados d){
 
-	//OBTENÇÃO DAS ENTRADAS
+	//obtenção das entradas
 	char valorIdServidor[20], valorSalarioServidor[20], valorTelefoneServidor[14], valorNomeServidor[500], valorCargoServidor[500];
 
 	scan_quote_string(valorIdServidor);
@@ -54,7 +54,7 @@ Dados getDados2(Dados d){
 	scan_quote_string(valorNomeServidor);
 	scan_quote_string(valorCargoServidor);
 
-	//COPIA DAS ENTRADAS PARA A STRUCT DO REG. DE DADOS
+	//cópia das entradas p/struct de dados
 	d.idServidor = atoi(valorIdServidor);
 
 	if(strlen(valorSalarioServidor) == 0)
@@ -106,15 +106,15 @@ void insereRegistro(char *nomeArquivo){
     int numRegistros;
     char paginaCab[32000];			//array da pagina de cabecalho
     int bytesLidos, paginasAcessadas = 0;	//bytesLidos sera o retorno do fread(bytes lidos com sucesso)
-	long int arquivoOffset, removeOffset;
+	long int arquivoOffset;
 	Lista l;
 
+	//abertura do arquivo original
     arquivoBin = fopen(nomeArquivo, "rb");
 
     //caso de erro #1: nao existe um arquivo com o nome indicado pelo usuario
 	if(arquivoBin == NULL){
 		printf("Falha no processamento do arquivo.");
-        //free(valorCampo);
 		return;
 	}
 
@@ -126,7 +126,6 @@ void insereRegistro(char *nomeArquivo){
     if(paginaCab[0] == '0'){
 		printf("Falha no processamento do arquivo.");
 		fclose(arquivoBin);
-        //free(valorCampo);
 		return;
 	}
 
@@ -136,12 +135,14 @@ void insereRegistro(char *nomeArquivo){
 	getLista(arquivoBin, &l);
 	fseek(arquivoBin, arquivoOffset, SEEK_CUR);
 
-
+	//abertura do arquivo novo p/escrita
 	novoArquivoBin = fopen("arquivo-novo.bin", "wb");
 
+	//atualização do status
 	paginaCab[0] = '0'; //status 0
 	fwrite(paginaCab, 32000, 1, novoArquivoBin);
 
+	//obtenção das entradas
 	scanf("%d", &numRegistros);
 
     Dados d[numRegistros];
@@ -154,28 +155,31 @@ void insereRegistro(char *nomeArquivo){
 	//copia das paginas p/ arquivo novo
 	copiaArquivo(arquivoBin, novoArquivoBin, paginasAcessadas);
 
-	//escrever os registros no arquivo
+	//escrita dos registros no arquivo
 	for(int i = 0; i < numRegistros; i++){
 		escreveRegistro(novoArquivoBin, &l, d[i]);
 	}
 
+	//atualização do encadeamento
 	getEncadLista(novoArquivoBin, l);
 
+	//atualização do status
 	char status = '1';
 	rewind(novoArquivoBin);
 	fwrite(&status, 1, 1, novoArquivoBin);	//status 1
 
+	//fechando os arquivos
 	fclose(novoArquivoBin);
     fclose(arquivoBin);
 
+	//escrita do arquivo bin na tela
+	binarioNaTela2("arquivo-novo.bin");
+
+	//desalocação da heap
 	for(int i = 0; i < numRegistros; i++){
-		//if(d[i].tamNomeServidor > 0)
 			free(d[i].nomeServidor);
-		//if(d[i].tamCargoServidor > 0)
 			free(d[i].cargoServidor);
 	}
 	desaloca(&l);
-
-	binarioNaTela2("arquivo-novo.bin");
 
 }
