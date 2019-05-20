@@ -43,7 +43,7 @@ void escreveRegistro2(FILE *fp, Lista *l, Dados d){
 }
 
 //função que realiza a atualização de registros
-char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *valorCampoAtualizaArray, Lista *l, Dados d){
+void atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *valorCampoAtualizaArray, Lista *l, Dados d){
 	int tamanhoReg; //tamanho do registro
 
 	fseek(fp, offset, SEEK_SET);	//pula p/offset do registro
@@ -90,8 +90,6 @@ char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *va
 		}
 	}
 	else if(!strcmp(nomeCampoAtualizaArray, "nomeServidor")){	//verifica a tag nomeServidor
-		//printf("atualiza nome\n");
-		//printf("%d\n", d.tamNomeServidor);
 		int tamanhoNome;
 		//char tag;
 		char lixo = '@';
@@ -102,7 +100,6 @@ char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *va
 		fseek(fp, 14, SEEK_CUR);	//pula telefoneServidor
 
 		if(d.tamNomeServidor == -1){
-			//printf("entrou aqui\n");
 			if(tamanhoNome > 0){
 				long int novoOffset;
 
@@ -126,6 +123,8 @@ char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *va
 				//procurar por registro removido q tenha espaço
 				//copiar dados p/novo registro
 				escreveRegistro2(fp, l, d);
+
+				free(d.nomeServidor);
 
 			}
 		}
@@ -152,6 +151,8 @@ char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *va
 				//procurar por registro removido q tenha espaço
 				//copiar dados p/novo registro
 				escreveRegistro2(fp, l, d);
+
+				free(d.nomeServidor);
 			}
 			else{
 				fwrite(valorCampoAtualizaArray, sizeof(valorCampoAtualizaArray), 1, fp);
@@ -204,6 +205,8 @@ char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *va
 				//copiar dados p/novo registro
 				escreveRegistro2(fp, l, d);
 
+				free(d.cargoServidor);
+
 			}
 		}
 		else{
@@ -229,6 +232,8 @@ char* atualiza(FILE *fp, long int offset, char *nomeCampoAtualizaArray, char *va
 				//procurar por registro removido q tenha espaço
 				//copiar dados p/novo registro
 				escreveRegistro2(fp, l, d);
+
+				free(d.cargoServidor);
 			}
 			else{
 				fwrite(valorCampoAtualizaArray, sizeof(valorCampoAtualizaArray), 1, fp);
