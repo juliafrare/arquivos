@@ -31,6 +31,8 @@ void insereLista(Lista *l, long int off){
 	l->fim->prox = ptr;
 	l->fim = ptr;
 	l->tamanho++;
+
+	//free(ptr);
 }
 
 //funcao que insere um elemento na lista
@@ -65,6 +67,8 @@ void insereListaTamanho(Lista *l, long int off, int size){
 	}
 
 	l->tamanho++;
+
+	//free(ptr);
 }
 
 //funcao que insere um elemento na lista
@@ -99,6 +103,8 @@ void insereListaTamanho2(Lista *l, long int off, int size){
 	}
 
 	l->tamanho++;
+
+	//free(ptr);
 }
 
 //funcao que remove um elemento da lista
@@ -173,9 +179,16 @@ void getEncadLista(FILE *fp, Lista l){
 	while(ptr != NULL){
 		fseek(fp, 0, SEEK_SET);
 
+
 		if(ptr->prox == NULL){
-			fseek(fp, ptr->offset + 5, SEEK_SET);
-			fwrite(&l.ini->offset, 8, 1, fp);
+			if(ptr == l.ini){
+				fseek(fp, 1, SEEK_SET);
+				fwrite(&l.ini->offset, 8, 1, fp);
+			}
+			else{
+				fseek(fp, ptr->offset + 5, SEEK_SET);
+				fwrite(&l.ini->offset, 8, 1, fp);
+			}
 		}
 		else if(ptr == l.ini){
 			fseek(fp, 1, SEEK_SET);
@@ -188,4 +201,19 @@ void getEncadLista(FILE *fp, Lista l){
 
 		ptr = ptr->prox;
 	}
+}
+
+//funcao que desaloca a lista
+void desaloca(Lista *l){
+	Node *ptr;
+
+	ptr = l->ini;
+
+	while(l->ini != NULL){
+		l->ini = l->ini->prox;
+		free(ptr);
+		ptr = l->ini;
+	}
+
+	l->fim = NULL;
 }

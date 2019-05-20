@@ -18,3 +18,4 @@ long int removeLista(Lista *l, int size);
 void getLista(FILE *fp, Lista *l);
 void printLista(Lista l);
 void getEncadLista(FILE *fp, Lista l);
+void desaloca(Lista *l);
