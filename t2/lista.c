@@ -31,8 +31,6 @@ void insereLista(Lista *l, long int off){
 	l->fim->prox = ptr;
 	l->fim = ptr;
 	l->tamanho++;
-
-	//free(ptr);
 }
 
 //funcao que insere um elemento na lista
@@ -67,8 +65,6 @@ void insereListaTamanho(Lista *l, long int off, int size){
 	}
 
 	l->tamanho++;
-
-	//free(ptr);
 }
 
 //funcao que insere um elemento na lista
@@ -103,8 +99,6 @@ void insereListaTamanho2(Lista *l, long int off, int size){
 	}
 
 	l->tamanho++;
-
-	//free(ptr);
 }
 
 //funcao que remove um elemento da lista
@@ -149,11 +143,7 @@ void getLista(FILE *fp, Lista *l){
 		fread(&size, 4, 1, fp);
 		fread(&off, 8, 1, fp);
 		l->fim->size = size;
-		//printf("%ld %d\n", off, size);
 	}
-
-	//printf("%ld %ld\n", l->ini->offset, l->fim->offset);
-	//printf("%d %d\n", l->ini->size, l->fim->size);
 
 	fseek(fp, 0, SEEK_SET);
 }
