@@ -6,6 +6,42 @@
 #include "escreverTela2.h"
 #include "lista.h"
 
+//funcao que escreve os registros no arquivo
+void escreveRegistro(FILE *fp, Lista *l, Dados d){
+	int removeOffset;
+
+	removeOffset = removeLista(l, d.tamanhoRegistro);
+
+	if(removeOffset != -1){
+		fseek(fp, removeOffset, SEEK_SET);
+		fwrite(&d.removido, 1, 1, fp);
+		fseek(fp, 4, SEEK_CUR);
+	}
+	else{
+		fseek(fp, 0, SEEK_END);
+		fwrite(&d.removido, 1, 1, fp);
+		fwrite(&d.tamanhoRegistro, 4, 1, fp);
+	}
+
+	fwrite(&d.encadeamentoLista, 8, 1, fp);
+	fwrite(&d.idServidor, 4, 1, fp);
+	fwrite(&d.salarioServidor, 8, 1, fp);
+	fwrite(&d.telefoneServidor, 14, 1, fp);
+	if(d.tamNomeServidor > 0){
+		fwrite(&d.tamNomeServidor, 4, 1, fp);
+		fwrite(&d.tagCampo4, 1, 1, fp);
+		fwrite(d.nomeServidor, strlen(d.nomeServidor) + 1, 1, fp);
+	}
+	if(d.tamCargoServidor > 0){
+		fwrite(&d.tamCargoServidor, 4, 1, fp);
+		fwrite(&d.tagCampo5, 1, 1, fp);
+		fwrite(d.cargoServidor, strlen(d.cargoServidor) + 1, 1, fp);
+	}
+
+	if(removeOffset != -1)
+		getEncadLista(fp, *l);
+}
+
 //obtem os dados para a funcionalidade 5
 Dados getDados2(Dados d){
 
@@ -120,37 +156,10 @@ void insereRegistro(char *nomeArquivo){
 
 	//escrever os registros no arquivo
 	for(int i = 0; i < numRegistros; i++){
-		removeOffset = removeLista(&l, d[i].tamanhoRegistro);
-
-		if(removeOffset != -1){
-			fseek(novoArquivoBin, removeOffset, SEEK_SET);
-			fwrite(&d[i].removido, 1, 1, novoArquivoBin);
-			fseek(novoArquivoBin, 4, SEEK_CUR);
-		}
-		else{
-			fseek(novoArquivoBin, 0, SEEK_END);
-			fwrite(&d[i].removido, 1, 1, novoArquivoBin);
-			fwrite(&d[i].tamanhoRegistro, 4, 1, novoArquivoBin);
-		}
-
-		fwrite(&d[i].encadeamentoLista, 8, 1, novoArquivoBin);
-		fwrite(&d[i].idServidor, 4, 1, novoArquivoBin);
-		fwrite(&d[i].salarioServidor, 8, 1, novoArquivoBin);
-		fwrite(&d[i].telefoneServidor, 14, 1, novoArquivoBin);
-		if(d[i].tamNomeServidor > 0){
-			fwrite(&d[i].tamNomeServidor, 4, 1, novoArquivoBin);
-			fwrite(&d[i].tagCampo4, 1, 1, novoArquivoBin);
-			fwrite(d[i].nomeServidor, strlen(d[i].nomeServidor) + 1, 1, novoArquivoBin);
-		}
-		if(d[i].tamCargoServidor > 0){
-			fwrite(&d[i].tamCargoServidor, 4, 1, novoArquivoBin);
-			fwrite(&d[i].tagCampo5, 1, 1, novoArquivoBin);
-			fwrite(d[i].cargoServidor, strlen(d[i].cargoServidor) + 1, 1, novoArquivoBin);
-		}
-
-		if(removeOffset != -1)
-			getEncadLista(novoArquivoBin, l);
+		escreveRegistro(novoArquivoBin, &l, d[i]);
 	}
+
+	getEncadLista(novoArquivoBin, l);
 
 	char status = '1';
 	rewind(novoArquivoBin);
@@ -159,5 +168,14 @@ void insereRegistro(char *nomeArquivo){
 	fclose(novoArquivoBin);
     fclose(arquivoBin);
 
+	for(int i = 0; i < numRegistros; i++){
+		//if(d[i].tamNomeServidor > 0)
+			free(d[i].nomeServidor);
+		//if(d[i].tamCargoServidor > 0)
+			free(d[i].cargoServidor);
+	}
+	desaloca(&l);
+
 	binarioNaTela2("arquivo-novo.bin");
+
 }

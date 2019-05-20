@@ -6,6 +6,7 @@
 #include "escreverTela2.h"
 #include "lista.h"
 
+//funcao que remove os registros
 char* remocao(char* pagina, int *offset, int offsetAnterior, Dados d){
 	*offset = offsetAnterior;
 	pagina[*offset] = '*';	//indicar que o registro foi removido
@@ -19,6 +20,7 @@ char* remocao(char* pagina, int *offset, int offsetAnterior, Dados d){
 	return pagina;
 }
 
+//funcao que compara dois valores de telefoneServidor
 int comparaTelefone(char *valor1, char *valor2, int tamanho){
 	for(int i = 0; i < tamanho; i++){
 		if(valor1[i] != valor2[i]){
@@ -135,7 +137,6 @@ void removeRegistro(char *nomeArquivo){
 
 					//verificar para todas as entradas
 					for(int i = 0; i < numeroRemocoes; i++){
-						//printf("nomeCampoArray[%d] == strcmp idServidor: %d\n", i, strcmp(nomeCampoArray[i], "idServidor"));
 						if(!strcmp(nomeCampoArray[i], "idServidor")){	//verifica a tag idServidor
 							if(atoi(valorCampoArray[i]) == d.idServidor){	//verifica o valor
 								offset = offsetAnterior;
@@ -183,11 +184,10 @@ void removeRegistro(char *nomeArquivo){
 							}
 						}
 						else if(!strcmp(nomeCampoArray[i], "telefoneServidor")){	//verifica a tag telefoneServidor
-							if(!comparaTelefone(valorCampoArray[i], d.telefoneServidor, 14)){	//verifica o valor
-								//printf("teste");
+							if(!strcmp(valorCampoArray[i], d.telefoneServidor)){	//verifica o valor
 								offset = offsetAnterior;
 								offsetLista = paginasAcessadas * 32000 + offsetAnterior;
-								insereListaTamanho(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
+								insereListaTamanho2(&l, offsetLista, d.tamanhoRegistro);	//insere o registro na lista
 								pagina[offset] = '*';	//indica que o registro foi removido
 								offset += 5;			//pula o indicador de tamanho, que sera mantido
 								offset += 8;			//pula encadeamentoLista (sera modificado no final)
@@ -231,6 +231,12 @@ void removeRegistro(char *nomeArquivo){
 							}
 						}
 					}
+
+					//desaloca d.tamNomeServidor e d.tamCargoServidor
+					if(d.tamNomeServidor > 0)
+						free(d.nomeServidor);
+					if(d.tamCargoServidor > 0)
+						free(d.cargoServidor);
 				}
 
 				if(pagina[offset] != '-' && pagina[offset] != '*'){
@@ -263,5 +269,15 @@ void removeRegistro(char *nomeArquivo){
     fclose(arquivoBin);
 	fclose(novoArquivoBin);
 
+	//desaloca(&l);
+
 	binarioNaTela2("arquivo-novo.bin");
+
+	for(int i = 0; i < numeroRemocoes; i++){
+		free(valorCampoArray[i]);
+	}
+
+	desaloca(&l);
+
+
 }
