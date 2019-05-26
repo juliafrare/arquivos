@@ -1,0 +1,1 @@
+void buscaArquivoBin(char *nomeArquivo);
