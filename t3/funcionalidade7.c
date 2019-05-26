@@ -40,7 +40,7 @@ void ordenaArquivo(char *nomeArquivo){
 	scanf("%s", nomeArquivoSaida);
 
 	//abertura do arquivo de saida
-    arquivoSaida = fopen(nomeArquivoSaida, "rb");
+    arquivoSaida = fopen(nomeArquivoSaida, "wb");
 
     //copia do registro de cabecalho
 

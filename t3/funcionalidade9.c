@@ -9,7 +9,7 @@
 void matchArquivos(char *nomeArquivo, char *nomeArquivo2){
     FILE* arquivoBin1;
 	FILE* arquivoBin2;			//ponteiro para o arquivo .bin
-	FILE* novoArquivoBin;
+	FILE* arquivoSaida;
 	char nomeArquivoSaida[100];
     int numeroAtualiza;
     char paginaCab[32000], status;			//array da pagina de cabecalho
@@ -48,10 +48,27 @@ void matchArquivos(char *nomeArquivo, char *nomeArquivo2){
 	scanf("%s", nomeArquivoSaida);
 
 	//abertura do arquivo de saida
+	arquivoSaida = fopen(nomeArquivoSaida, "wb");
+
+	//copia do registro de cabecalho
+
+
+	//adicionar registros p/array
+
+
+	//mergesort na array
+
+
+	//copiar registros p/arquivo (ver funcionalidade 1)
+
+
+	//pegar encadeamento
 
 
     //fechando os arquivos
-	//fclose(novoArquivoBin);
     fclose(arquivoBin1);
 	fclose(arquivoBin2);
+	fclose(arquivoSaida);
+
+	//free
 }
