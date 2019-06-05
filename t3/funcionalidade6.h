@@ -1,0 +1,1 @@
+void atualizaRegistro(char *nomeArquivo);

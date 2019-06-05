@@ -1,0 +1,1 @@
+void criaArquivoBin(char *nomeArquivo);

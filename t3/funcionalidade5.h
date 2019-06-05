@@ -1,0 +1,1 @@
+void insereRegistro(char *nomeArquivo);
