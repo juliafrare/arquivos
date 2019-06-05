@@ -1,0 +1,1 @@
+void mergeArquivos(char *nomeArquivo, char *nomeArquivo2);
