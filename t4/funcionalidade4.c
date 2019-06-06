@@ -7,7 +7,7 @@
 #include "lista.h"
 
 //funcionalidade 4
-void removeRegistro(char *nomeArquivo){
+int removeRegistro(char *nomeArquivo){
     FILE* arquivoBin;			//ponteiro para o arquivo .bin
 	FILE* novoArquivoBin;
     int numeroRemocoes;
@@ -21,8 +21,10 @@ void removeRegistro(char *nomeArquivo){
 	//abertura do arquivo original
     int init;
 	init = inicializa(&arquivoBin, nomeArquivo, &paginaCab);
-	if(init == 1)
-		return;
+	if(init == 1){
+		free(paginaCab);
+		return 1;
+	}
 
 	//obtencao das entradas
     scanf("%d", &numeroRemocoes);
@@ -73,7 +75,7 @@ void removeRegistro(char *nomeArquivo){
 			printf("Registro inexistente.");
 			fclose(arquivoBin);
 			fclose(novoArquivoBin);
-			return;
+			return 1;
 		}
 
 		
@@ -229,7 +231,7 @@ void removeRegistro(char *nomeArquivo){
 	fclose(novoArquivoBin);
 
 	//escrita do arquivo bin na tela
-	binarioNaTela2("arquivo-novo.bin");
+	//binarioNaTela2("arquivo-novo.bin");
 
 	//desalocação da heap
 	for(int i = 0; i < numeroRemocoes; i++){
@@ -237,4 +239,5 @@ void removeRegistro(char *nomeArquivo){
 	}
 	desaloca(&l);
 
+	return 0;
 }

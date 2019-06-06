@@ -18,6 +18,8 @@ void funcionalidade13(char *nomeArquivo, char *nomeArquivo2){
     //execução da funcionalidade 5
     DadosT4 *novos;  //array dos indices novos
     novos = insereRegistro(nomeArquivo, &numRegistros);
+    if(novos == NULL)
+        return;
 
     //abertura do arquivo de indice p/leitura
     paginaCab2 = (char *) malloc(sizeof(char) * 32000);
@@ -70,6 +72,7 @@ void funcionalidade13(char *nomeArquivo, char *nomeArquivo2){
     //sort
     sortIndice(regIndice, 0, nIndice - 1);
 
+    //reabertura do arquivo de índice
     arquivoIndice = fopen(nomeArquivo2, "wb");
 
     //atualização do status
@@ -79,7 +82,7 @@ void funcionalidade13(char *nomeArquivo, char *nomeArquivo2){
     fwrite(paginaCab2, 32000, 1, arquivoIndice);
     fseek(arquivoIndice, 32000, SEEK_SET);
 
-    //atualizar arquivo de índice
+    //atualização do arquivo de índice
     int j = 0;
 	while(j < nIndice){
 		char *paginaIndice;

@@ -28,6 +28,7 @@ int main(){
 	char campo[20], *valor;
 	FILE *arquivoLido, *arquivoBin;
 	int numRegistros;
+	int init;
 
 	scanf("%d", &funcionalidade);
 
@@ -52,14 +53,16 @@ int main(){
 			break;
         case 4:
 			scanf("%s", nomeArquivo);
-			removeRegistro(nomeArquivo);
+			init = removeRegistro(nomeArquivo);
+			if(init == 0)
+				binarioNaTela2("arquivo-novo.bin");
 			break;
 
         case 5:
 			scanf("%s", nomeArquivo);
 			scanf("%d", &numRegistros);
-			insereRegistro(nomeArquivo, &numRegistros);
-			binarioNaTela2("arquivo-novo.bin");
+			if(insereRegistro(nomeArquivo, &numRegistros) != NULL)
+				binarioNaTela2("arquivo-novo.bin");
 			break;
 
         case 6:
@@ -87,7 +90,9 @@ int main(){
 		case 10:
 			scanf("%s", nomeArquivo);
 			scanf("%s", nomeArquivo2);
-			funcionalidade10(nomeArquivo, nomeArquivo2);
+			init = funcionalidade10(nomeArquivo, nomeArquivo2);
+			if(init == 0)
+				binarioNaTela2(nomeArquivo2);
 			break;
 
 		case 11:

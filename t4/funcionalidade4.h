@@ -1,1 +1,1 @@
-void removeRegistro(char *nomeArquivo);
+int removeRegistro(char *nomeArquivo);

@@ -5,12 +5,8 @@
 #include "funcoes_t4.h"
 #include "funcionalidade10.h"
 #include "escreverTela2.h"
-/*
-void getOffset(FILE *arquivoBin){
 
-}*/
-
-void funcionalidade10(char *nomeArquivo, char *nomeArquivo2){
+int funcionalidade10(char *nomeArquivo, char *nomeArquivo2){
     FILE* arquivoBin;			//ponteiro para o arquivo .bin
 	FILE* arquivoIndice;
     char *paginaCab1;			//array da pagina de cabecalho
@@ -23,7 +19,7 @@ void funcionalidade10(char *nomeArquivo, char *nomeArquivo2){
 	init = inicializa(&arquivoBin, nomeArquivo, &paginaCab1);
 	if(init == 1){
 		free(paginaCab1);
-		return;
+		return 1;
 	}
 
 	free(paginaCab1);
@@ -153,5 +149,7 @@ void funcionalidade10(char *nomeArquivo, char *nomeArquivo2){
 	free(regIndice);
 
     //escrita do arquivo bin na tela
-	binarioNaTela2(nomeArquivo2);
+	//binarioNaTela2(nomeArquivo2);
+
+	return 0;
 }
