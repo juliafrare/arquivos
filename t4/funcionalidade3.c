@@ -5,7 +5,7 @@
 #include "funcionalidade3.h"
 
 //funcionalidade 3
-int buscaArquivoBin(char *nomeArquivo, char *nomeDoCampo, char *valor){
+int buscaArquivoBin(char *nomeArquivo, char *nomeDoCampo, char *valor, int modo){
 	FILE* arquivoBin;			//ponteiro para o arquivo .bin	
 	char pagina[32000];			//array da pagina de disco
 	//char nomeDoCampo[20];		//string do nome do campo que sera buscado (exemplo: cargoServidor)
@@ -163,12 +163,16 @@ int buscaArquivoBin(char *nomeArquivo, char *nomeDoCampo, char *valor){
 		}
 	}
 	
-
-	if(achou == 1)
-		printf("Número de páginas de disco acessadas: %d\n", paginasAcessadas);
-	else
-		printf("Registro inexistente.\n");
-
+	if(modo == 1){
+		if(achou == 1)
+			printf("Número de páginas de disco acessadas: %d\n", paginasAcessadas);
+		else
+			printf("Registro inexistente.\n");
+	}
+	else if(modo == 0){
+		if(achou == 0)
+			printf("Registro inexistente.\n");
+	}
 	//free(valor);
 	fclose(arquivoBin);
 

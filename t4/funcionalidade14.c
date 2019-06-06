@@ -7,9 +7,10 @@ void funcionalidade14(char *nomeArquivo, char *nomeArquivo2, char *campo, char *
     int paginasF3, paginasF11, diferenca;
 
     printf("*** Realizando a busca sem o auxílio de índice\n");
-    paginasF3 = buscaArquivoBin(nomeArquivo, campo, valor);
+    paginasF3 = buscaArquivoBin(nomeArquivo, campo, valor, 0);
+    printf("Número de páginas de disco acessadas: %d\n", paginasF3);
     printf("*** Realizando a busca com o auxílio de um índice secundário fortemente ligado\n");
-    paginasF11 = funcionalidade11(nomeArquivo, nomeArquivo2, campo, valor);
+    paginasF11 = funcionalidade11(nomeArquivo, nomeArquivo2, campo, valor, 0);
 
     if(paginasF3 < paginasF11)
         diferenca = paginasF11 - paginasF3;

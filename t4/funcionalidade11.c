@@ -5,7 +5,7 @@
 #include "funcoes_t4.h"
 #include "funcionalidade11.h"
 
-int funcionalidade11(char *nomeArquivo, char *nomeArquivo2, char *campo, char *valor){
+int funcionalidade11(char *nomeArquivo, char *nomeArquivo2, char *campo, char *valor, int modo){
     FILE* arquivoBin;			//ponteiro para o arquivo .bin
 	FILE* arquivoIndice;
     char *paginaCab1, *paginaCab2;			//array da pagina de cabecalho
@@ -92,6 +92,10 @@ int funcionalidade11(char *nomeArquivo, char *nomeArquivo2, char *campo, char *v
     }
     else{
         printf("Registro inexistente.\n");
+        if(modo == 0){
+            printf("Número de páginas de disco para carregar o arquivo de índice: %d\n", paginasIndice);
+            printf("Número de páginas de disco para acessar o arquivo de dados: %d\n", paginasDados);    
+        }
         return paginasDados;
     }
 

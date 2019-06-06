@@ -1,1 +1,1 @@
-int buscaArquivoBin(char *nomeArquivo, char *nomeDoCampo, char *valor);
+int buscaArquivoBin(char *nomeArquivo, char *nomeDoCampo, char *valor, int modo);

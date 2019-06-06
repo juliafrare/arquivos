@@ -47,7 +47,7 @@ int main(){
 			scanf("%s ", campo);
     		valor = readLine();
 
-			buscaArquivoBin(nomeArquivo, campo, valor);
+			buscaArquivoBin(nomeArquivo, campo, valor, 1);
 
 			free(valor);
 			break;
@@ -102,7 +102,7 @@ int main(){
 			scanf("%s ", campo);
     		valor = readLine();
 
-			funcionalidade11(nomeArquivo, nomeArquivo2, campo, valor);
+			funcionalidade11(nomeArquivo, nomeArquivo2, campo, valor, 1);
 
 			free(valor);
 			break;
