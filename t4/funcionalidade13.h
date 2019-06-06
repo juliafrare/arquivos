@@ -1,0 +1,1 @@
+void funcionalidade13(char *nomeArquivo, char *nomeArquivo2);
